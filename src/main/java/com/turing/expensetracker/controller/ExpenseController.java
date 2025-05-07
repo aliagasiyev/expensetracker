@@ -47,18 +47,17 @@ public class ExpenseController {
     }
     
 
-    @Operation(summary = "Get expenses by date range")
+    @Operation(summary = "Get expenses within a date range")
     @GetMapping("/range")
     public ResponseEntity<List<ExpenseResponse>> getExpensesByDateRange(
             @Parameter(description = "Start date (ISO format)", required = true)
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(name = "from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+    
             @Parameter(description = "End date (ISO format)", required = true)
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        if (from.isAfter(to)) {
-            throw new InvalidDateRangeException();
-        }
+            @RequestParam(name = "to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         return ResponseEntity.ok(expenseService.getExpensesByDateRange(from, to));
     }
+    
 
     @Operation(summary = "Update an expense")
     @PutMapping("/{id}")
