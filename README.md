@@ -41,3 +41,68 @@
 
 ## 📁 Project Structure
 
+```
+src/main/java/com/turing/expensetracker
+├── controller        # REST Controllers
+├── dto               # Request and Response DTOs
+├── entity            # Expense entity
+├── exception         # Global error handling
+├── mapper            # DTO ↔ Entity mappers (optional for future)
+├── repository        # Spring Data JPA Repositories
+├── service           # Business logic
+```
+
+---
+
+## 📡 API Endpoints
+
+All endpoints are prefixed with `/api/v1/expenses`
+
+| Method | Endpoint                            | Description                        |
+|--------|-------------------------------------|------------------------------------|
+| POST   | `/`                                 | Create a new expense               |
+| GET    | `/`                                 | Get all expenses                   |
+| GET    | `/{id}`                             | Get a specific expense by ID       |
+| PUT    | `/{id}`                             | Update an expense                  |
+| DELETE | `/{id}`                             | Delete an expense by ID            |
+| GET    | `/range?from=2025-05-01&to=2025-05-07` | Get expenses in date range     |
+| GET    | `/statistics`                       | Get total income and total expense |
+
+---
+
+## 🧪 Sample Create Request
+
+```json
+POST /api/v1/expenses
+Content-Type: application/json
+
+{
+  "title": "May Salary",
+  "amount": 1200.50,
+  "category": "Income",
+  "date": "2025-05-01",
+  "description": "Salary for May",
+  "income": true
+}
+```
+
+---
+
+## 📷 Swagger UI
+
+Visit:
+
+```
+http://localhost:8081/swagger-ui/index.html
+```
+
+---
+
+## 🚀 Future Enhancements
+
+- 🔐 User Authentication (JWT)
+- 📊 Category breakdown & charts
+- 📅 Monthly reports
+- 📎 Export to CSV/Excel
+- 🌍 Multi-user support
+
