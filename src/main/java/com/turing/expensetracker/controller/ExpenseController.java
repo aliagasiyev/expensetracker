@@ -2,7 +2,6 @@ package com.turing.expensetracker.controller;
 
 import com.turing.expensetracker.dto.request.ExpenseRequest;
 import com.turing.expensetracker.dto.response.ExpenseResponse;
-import com.turing.expensetracker.exception.InvalidDateRangeException;
 import com.turing.expensetracker.service.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
