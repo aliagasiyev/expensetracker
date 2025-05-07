@@ -90,6 +90,25 @@ Content-Type: application/json
 
 ## 📷 Swagger UI
 
+---
+
+## 🧭 Swagger UI Preview
+
+The project provides a complete interactive API documentation via Swagger:
+
+![Swagger Screenshot](docs/swagger-ui.png)
+
+You can access it at:
+
+```
+http://localhost:8081/swagger-ui/index.html
+```
+
+---
+
+> ℹ️ To update this screenshot, take a new one and replace the image in `/docs/swagger-ui.png` inside your repo.
+
+
 Visit:
 
 ```
