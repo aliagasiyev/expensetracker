@@ -125,3 +125,45 @@ http://localhost:8081/swagger-ui/index.html
 - 📎 Export to CSV/Excel
 - 🌍 Multi-user support
 
+To Do:
+
+1. ExpenseCategory CRUD (Category Management)
+
+This feature allows users to categorize their expenses to keep better track of them. Users will be able to manage their own categories through this new ExpenseCategory model.
+
+Endpoints:
+POST /api/v1/categories - Create a new category.
+GET /api/v1/categories - Get all categories.
+GET /api/v1/categories/{id} - Get a specific category by its ID.
+PUT /api/v1/categories/{id} - Update a category by its ID.
+DELETE /api/v1/categories/{id} - Delete a category by its ID.
+2. ExpenseSearch by Category
+
+This feature enables users to search for expenses based on their categories. It will make it easier for users to analyze and manage their expenses quickly.
+
+Endpoint:
+GET /api/v1/expenses/category/{categoryId} - Get all expenses for a specific category.
+3. UserProfile
+
+Users will have the ability to view and update their profiles. This feature will allow users to manage their personal information associated with the application.
+
+Endpoints:
+GET /api/v1/users/{userId}/profile - Get the profile of a user by their ID.
+PUT /api/v1/users/{userId}/profile - Update the profile of a user by their ID.
+4. Expense Summary
+
+This feature provides users with an overview of their expenses. It allows users to get summarized statistics for their expenses, such as monthly, yearly, or category-based summaries.
+
+Endpoint:
+GET /api/v1/expenses/summary - Get a summary of expenses (daily, monthly, yearly).
+5. Expense Reminder
+
+This feature allows users to set reminders for certain expenses, such as monthly recurring expenses. Users will be able to create, view, and delete expense reminders.
+
+Endpoints:
+POST /api/v1/expenses/reminder - Create an expense reminder.
+GET /api/v1/expenses/reminders - Get all expense reminders.
+DELETE /api/v1/expenses/reminder/{id} - Delete an expense reminder by its ID.
+
+
+
