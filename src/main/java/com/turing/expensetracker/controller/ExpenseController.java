@@ -3,6 +3,9 @@ package com.turing.expensetracker.controller;
 import com.turing.expensetracker.dto.request.ExpenseRequest;
 import com.turing.expensetracker.dto.response.ExpenseResponse;
 import com.turing.expensetracker.service.ExpenseService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,6 +17,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST Controller for managing expense operations.
+ * Provides endpoints for CRUD operations and expense statistics.
+ */
 @RestController
 @RequestMapping("/api/v1/expenses")
 @RequiredArgsConstructor
@@ -22,9 +29,11 @@ public class ExpenseController {
     private final ExpenseService expenseService;
 
     @PostMapping
-    public ResponseEntity<ExpenseResponse> createExpense(@Valid @RequestBody ExpenseRequest request) {
+    public ResponseEntity<ExpenseResponse> createExpense(
+            @Valid @RequestBody ExpenseRequest request) {
         return new ResponseEntity<>(expenseService.createExpense(request), HttpStatus.CREATED);
     }
+
 
     @GetMapping
     public ResponseEntity<List<ExpenseResponse>> getAllExpenses() {
@@ -36,6 +45,7 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getExpenseById(id));
     }
 
+
     @GetMapping("/range")
     public ResponseEntity<List<ExpenseResponse>> getExpensesByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -43,14 +53,19 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getExpensesByDateRange(from, to));
     }
 
+
     @PutMapping("/{id}")
     public ResponseEntity<ExpenseResponse> updateExpense(
-            @PathVariable Long id, @Valid @RequestBody ExpenseRequest request) {
+            @PathVariable Long id,
+            @Valid @RequestBody ExpenseRequest request) {
         return ResponseEntity.ok(expenseService.updateExpense(id, request));
     }
 
+    @Operation(summary = "Delete an expense by ID")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteExpense(
+            @Parameter(description = "ID of the expense to delete", required = true)
+            @PathVariable("id") Long id) {
         expenseService.deleteExpense(id);
         return ResponseEntity.noContent().build();
     }
