@@ -27,4 +27,7 @@ public class ExpenseRequest {
     private LocalDate date; 
 
     private boolean isIncome;
+
+    @NotNull(message = "Description is required")
+    private String description;
 }
