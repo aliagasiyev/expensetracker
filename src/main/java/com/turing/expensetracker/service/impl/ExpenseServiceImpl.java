@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -96,19 +97,17 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         statistics.put("totalExpenses", totalExpenses);
 
-        // Calculate average expense
         BigDecimal averageExpense = totalExpenses.divide(
-                BigDecimal.valueOf(expenses.size()), 2, BigDecimal.ROUND_HALF_UP);
+                BigDecimal.valueOf(expenses.size()), 2, RoundingMode.HALF_UP);
         statistics.put("averageExpense", averageExpense);
 
-        // Find highest expense
         BigDecimal highestExpense = expenses.stream()
                 .map(Expense::getAmount)
                 .max(BigDecimal::compareTo)
                 .orElse(BigDecimal.ZERO);
         statistics.put("highestExpense", highestExpense);
 
-        // Find lowest expense
+        
         BigDecimal lowestExpense = expenses.stream()
                 .map(Expense::getAmount)
                 .min(BigDecimal::compareTo)
