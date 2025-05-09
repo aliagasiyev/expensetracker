@@ -47,14 +47,6 @@
 - 📎 Export to CSV/Excel
 - 🌍 Multi-user support
 
-
-
-# 📊 ExpenseTracker Microservices Documentation
-
-This document outlines the microservices architecture of the ExpenseTracker project, which consists of 4 core services. Each service is designed to be functionally rich and API-complete, closely resembling real-world systems to create a professional impression.
-
----
-
 ## 🧩 Overall Architecture
 
 - **Microservices**: User Service, Expense Service, Analytics Service, Notification Service  
