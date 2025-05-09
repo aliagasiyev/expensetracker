@@ -39,84 +39,6 @@
 
 ---
 
-## 📁 Project Structure
-
-```
-src/main/java/com/turing/expensetracker
-├── controller        # REST Controllers
-├── dto               # Request and Response DTOs
-├── entity            # Expense entity
-├── exception         # Global error handling
-├── mapper            # DTO ↔ Entity mappers (optional for future)
-├── repository        # Spring Data JPA Repositories
-├── service           # Business logic
-```
-
----
-
-## 📡 API Endpoints
-
-All endpoints are prefixed with `/api/v1/expenses`
-
-| Method | Endpoint                            | Description                        |
-|--------|-------------------------------------|------------------------------------|
-| POST   | `/`                                 | Create a new expense               |
-| GET    | `/`                                 | Get all expenses                   |
-| GET    | `/{id}`                             | Get a specific expense by ID       |
-| PUT    | `/{id}`                             | Update an expense                  |
-| DELETE | `/{id}`                             | Delete an expense by ID            |
-| GET    | `/range?from=2025-05-01&to=2025-05-07` | Get expenses in date range     |
-| GET    | `/statistics`                       | Get total income and total expense |
-
----
-
-## 🧪 Sample Create Request
-
-```json
-POST /api/v1/expenses
-Content-Type: application/json
-
-{
-  "title": "May Salary",
-  "amount": 1200.50,
-  "category": "Income",
-  "date": "2025-05-01",
-  "description": "Salary for May",
-  "income": true
-}
-```
-
----
-
-## 📷 Swagger UI
-
----
-
-## 🧭 Swagger UI Preview
-
-The project provides a complete interactive API documentation via Swagger:
-
-![Swagger Screenshot](docs/swagger-ui.png)
-
-You can access it at:
-
-```
-http://localhost:8081/swagger-ui/index.html
-```
-
----
-
-> ℹ️ To update this screenshot, take a new one and replace the image in `/docs/swagger-ui.png` inside your repo.
-
-
-Visit:
-
-```
-http://localhost:8081/swagger-ui/index.html
-```
-
----
-
 ## 🚀 Future Enhancements
 
 - 🔐 User Authentication (JWT)
@@ -125,48 +47,175 @@ http://localhost:8081/swagger-ui/index.html
 - 📎 Export to CSV/Excel
 - 🌍 Multi-user support
 
-##To Do:
 
-# Expense Tracker API
 
-## Overview
-This API provides a comprehensive solution for expense tracking and management. Users can categorize expenses, search by categories, manage their profiles, view expense summaries, and set reminders for recurring expenses.
+# 📊 ExpenseTracker Microservices Documentation
 
-## Features
+This document outlines the microservices architecture of the ExpenseTracker project, which consists of 4 core services. Each service is designed to be functionally rich and API-complete, closely resembling real-world systems to create a professional impression.
 
-### 1. ExpenseCategory CRUD (Category Management)
-This feature allows users to categorize their expenses to keep better track of them. Users will be able to manage their own categories through this new ExpenseCategory model.
+---
 
-#### Endpoints:
-- `POST /api/v1/categories` - Create a new category
-- `GET /api/v1/categories` - Get all categories
-- `GET /api/v1/categories/{id}` - Get a specific category by its ID
-- `PUT /api/v1/categories/{id}` - Update a category by its ID
-- `DELETE /api/v1/categories/{id}` - Delete a category by its ID
+## 🧩 Overall Architecture
 
-### 2. ExpenseSearch by Category
-This feature enables users to search for expenses based on their categories. It will make it easier for users to analyze and manage their expenses quickly.
+- **Microservices**: User Service, Expense Service, Analytics Service, Notification Service  
+- **API Gateway**: Spring Cloud Gateway  
+- **Service Discovery**: Eureka  
+- **Config Server**: Centralized configuration management  
+- **Infrastructure**: PostgreSQL, Kafka, Docker  
+- **Inter-service Communication**:
+  - REST (documented via Swagger)
+  - Kafka (for asynchronous triggers)
 
-#### Endpoint:
-- `GET /api/v1/expenses/category/{categoryId}` - Get all expenses for a specific category
+---
 
-### 3. UserProfile
-Users will have the ability to view and update their profiles. This feature will allow users to manage their personal information associated with the application.
+## 👤 1. User Service – Authentication & Profile Management
 
-#### Endpoints:
-- `GET /api/v1/users/{userId}/profile` - Get the profile of a user by their ID
-- `PUT /api/v1/users/{userId}/profile` - Update the profile of a user by their ID
+**Responsibilities:**
+- Registration, login, profile management, password updates, role-based access (USER, ADMIN)
 
-### 4. Expense Summary
-This feature provides users with an overview of their expenses. It allows users to get summarized statistics for their expenses, such as monthly, yearly, or category-based summaries.
+**Endpoints:**
 
-#### Endpoint:
-- `GET /api/v1/expenses/summary` - Get a summary of expenses (daily, monthly, yearly)
+| Method | Endpoint                     | Description                          |
+|--------|------------------------------|--------------------------------------|
+| POST   | `/auth/register`             | Register a new user                  |
+| POST   | `/auth/login`                | Log in to the system                 |
+| GET    | `/users/me`                  | Retrieve own profile via JWT token   |
+| GET    | `/users/{id}`                | View another user’s profile          |
+| PUT    | `/users/update-profile`      | Update own profile                   |
+| PUT    | `/users/change-password`     | Change password                      |
+| DELETE | `/users/{id}`                | Delete user (admin only)             |
 
-### 5. Expense Reminder
-This feature allows users to set reminders for certain expenses, such as monthly recurring expenses. Users will be able to create, view, and delete expense reminders.
+**Technologies**: Spring Security, JWT, PostgreSQL
 
-#### Endpoints:
-- `POST /api/v1/expenses/reminder` - Create an expense reminder
-- `GET /api/v1/expenses/reminders` - Get all expense reminders
-- `DELETE /api/v1/expenses/reminder/{id}` - Delete an expense reminder by its ID
+---
+
+## 💸 2. Expense Service – Expense Management
+
+**Responsibilities:**
+- CRUD operations for expenses, category management, filtering and searching
+
+**Endpoints:**
+
+| Method | Endpoint                                | Description                           |
+|--------|------------------------------------------|---------------------------------------|
+| POST   | `/expenses`                              | Create a new expense                  |
+| GET    | `/expenses/user/{userId}`                | Get all expenses for a user           |
+| GET    | `/expenses/{id}`                         | Get a specific expense by ID          |
+| PUT    | `/expenses/{id}`                         | Update an expense                     |
+| DELETE | `/expenses/{id}`                         | Delete an expense                     |
+| GET    | `/expenses/search?category=&date=&min=`  | Search and filter expenses            |
+| GET    | `/expenses/categories`                   | Get all categories                    |
+| POST   | `/expenses/categories`                   | Create a new category                 |
+| PUT    | `/expenses/categories/{id}`              | Update a category                     |
+| DELETE | `/expenses/categories/{id}`              | Delete a category                     |
+
+---
+
+## 📈 3. Analytics Service – Statistics & Graphs
+
+**Responsibilities:**
+- Monthly and overall expense reporting, chart-ready data output, comparisons
+
+**Endpoints:**
+
+| Method | Endpoint                                      | Description                                |
+|--------|-----------------------------------------------|--------------------------------------------|
+| GET    | `/analytics/monthly/{userId}?month=YYYY-MM`   | Monthly expense report                     |
+| GET    | `/analytics/summary/{userId}`                 | Overall statistics                         |
+| GET    | `/analytics/by-category/{userId}`             | Expenses grouped by category               |
+| GET    | `/analytics/chart-data/{userId}`              | Data formatted for charting libraries      |
+| GET    | `/analytics/compare-months/{userId}`          | Compare current vs previous month          |
+| GET    | `/analytics/top-expenses/{userId}?limit=5`    | Top 5 highest expenses                     |
+
+---
+
+## 📬 4. Notification Service – Email and In-App Alerts
+
+**Responsibilities:**
+- Trigger alerts when spending limits are exceeded or to send monthly summaries (email or system notification)
+
+**Endpoints:**
+
+| Method | Endpoint                               | Description                           |
+|--------|----------------------------------------|---------------------------------------|
+| POST   | `/notifications/settings`              | Configure user notification settings  |
+| GET    | `/notifications/settings/{userId}`     | View notification settings            |
+| PUT    | `/notifications/settings/{userId}`     | Update settings                       |
+| POST   | `/notifications/test-send/{userId}`    | Send a test notification              |
+| POST   | `/notifications/trigger-limit-check`   | Trigger alert if user exceeds limit   |
+| POST   | `/notifications/monthly-summary/{userId}` | Send monthly summary via email     |
+
+**Technical Details:**
+
+- **Asynchronous notification system using Kafka**:
+  - Topic: `expense.limit-exceeded`
+  - Topic: `monthly.expense.summary`
+- **Delivery channels**:
+  - Email (via SMTP, Mailtrap, or SendGrid)
+  - In-app system notifications (e.g., toast alerts)
+
+---
+
+## 🔄 Service Communication (High-Level Flow)
+
+1. **When an expense is created →** Kafka sends `limit-exceeded` event  
+2. **At the end of the month →** Analytics service triggers `monthly-summary` event  
+3. **Notification service →** Sends email or toast alerts  
+4. **Frontend →** Communicates through API Gateway to reach all services
+
+---
+
+## 🚀 Recommendations for Expansion
+
+- Use Docker Compose for isolated service deployments  
+- Integrate Grafana + Prometheus for metrics monitoring  
+- Add centralized logging via the ELK Stack (ElasticSearch + Logstash + Kibana)  
+- Visualize analytics in frontend using React.js and Chart.js
+
+---
+
+## 📊 Grafana + Prometheus (Metric Monitoring)
+
+These tools allow real-time tracking of backend microservice performance.
+
+**Examples:**
+- How many times per day is `ExpenseService` called?
+- What is the average response time of endpoints?
+- Which API is most frequently used?
+- How do memory and CPU usage vary?
+
+**How it works:**
+- **Prometheus** collects metrics from each service
+- **Grafana** visualizes them in dashboards
+
+**Example Metrics:**
+- `http_server_requests_seconds_count`
+- `jvm_memory_used_bytes`
+- `process_cpu_usage`
+
+> Requires: `spring-boot-actuator` + `micrometer`
+
+---
+
+## 📂 ELK Stack (Centralized Logging)
+
+- **ELK = ElasticSearch + Logstash + Kibana**
+- Purpose: Collect and analyze logs from all services in one place
+
+**Use Cases:**
+- Track error logs (NotFound, Exception, Warning)
+- Identify most frequent errors
+- Trace logs by service and endpoint
+
+**Components:**
+- **Logstash**: Aggregates logs
+- **ElasticSearch**: Stores logs
+- **Kibana**: Provides filtering, search, and visualization
+
+---
+
+### ✨ Why It Matters
+
+- Builds professional, observable backend systems  
+- Moves project closer to production standards  
+- Shows senior-level awareness of monitoring and infrastructure
