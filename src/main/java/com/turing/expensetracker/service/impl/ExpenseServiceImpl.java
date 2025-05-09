@@ -149,4 +149,51 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new InvalidDateRangeException("Date range cannot include future dates");
         }
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> searchExpenses(String title, String category, LocalDate date,
+                                              BigDecimal minAmount, BigDecimal maxAmount) {
+        return expenseRepository.findAll().stream()
+                .filter(expense -> 
+                    (title == null || expense.getTitle().toLowerCase().contains(title.toLowerCase())) &&
+                    (category == null || expense.getCategory().equalsIgnoreCase(category)) &&
+                    (date == null || expense.getDate().equals(date)) &&
+                    (minAmount == null || expense.getAmount().compareTo(minAmount) >= 0) &&
+                    (maxAmount == null || expense.getAmount().compareTo(maxAmount) <= 0))
+                .map(expenseMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> getTodayExpenses() {
+        LocalDate today = LocalDate.now();
+        return expenseRepository.findByDateBetween(today, today).stream()
+                .map(expenseMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, BigDecimal> getExpensesByCategory() {
+        return expenseRepository.findAll().stream()
+                .collect(Collectors.groupingBy(
+                    Expense::getCategory,
+                    Collectors.reducing(
+                        BigDecimal.ZERO,
+                        Expense::getAmount,
+                        BigDecimal::add
+                    )
+                ));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> getTopExpenses() {
+        return expenseRepository.findAll().stream()
+                .sorted((e1, e2) -> e2.getAmount().compareTo(e1.getAmount()))
+                .limit(5)
+                .map(expenseMapper::toResponse)
+                .collect(Collectors.toList());
+    }
 } 

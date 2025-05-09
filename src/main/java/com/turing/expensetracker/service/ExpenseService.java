@@ -3,6 +3,7 @@ package com.turing.expensetracker.service;
 import com.turing.expensetracker.dto.request.ExpenseRequest;
 import com.turing.expensetracker.dto.response.ExpenseResponse;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -22,4 +23,13 @@ public interface ExpenseService {
     void deleteExpense(Long id);
 
     Map<String, Object> getStatistics(); 
+
+    List<ExpenseResponse> searchExpenses(String title, String category, LocalDate date, 
+    BigDecimal minAmount, BigDecimal maxAmount);
+
+    List<ExpenseResponse> getTodayExpenses();
+
+    Map<String, BigDecimal> getExpensesByCategory();
+
+   List<ExpenseResponse> getTopExpenses();
 }

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -80,5 +81,43 @@ public class ExpenseController {
     @GetMapping("/statistics")
     public ResponseEntity<Map<String, Object>> getStatistics() {
         return ResponseEntity.ok(expenseService.getStatistics());
+    }
+
+    @Operation(summary = "Search expenses with filters")
+    @GetMapping("/search")
+    public ResponseEntity<List<ExpenseResponse>> searchExpenses(
+            @Parameter(description = "Title to search for")
+            @RequestParam(required = false) String title,
+            
+            @Parameter(description = "Category to filter by")
+            @RequestParam(required = false) String category,
+            
+            @Parameter(description = "Date to filter by (ISO format)")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            
+            @Parameter(description = "Minimum amount")
+            @RequestParam(required = false) BigDecimal minAmount,
+            
+            @Parameter(description = "Maximum amount")
+            @RequestParam(required = false) BigDecimal maxAmount) {
+        return ResponseEntity.ok(expenseService.searchExpenses(title, category, date, minAmount, maxAmount));
+    }
+
+    @Operation(summary = "Get today's expenses")
+    @GetMapping("/today")
+    public ResponseEntity<List<ExpenseResponse>> getTodayExpenses() {
+        return ResponseEntity.ok(expenseService.getTodayExpenses());
+    }
+
+    @Operation(summary = "Get expenses grouped by category")
+    @GetMapping("/by-category")
+    public ResponseEntity<Map<String, BigDecimal>> getExpensesByCategory() {
+        return ResponseEntity.ok(expenseService.getExpensesByCategory());
+    }
+
+    @Operation(summary = "Get top 5 expenses by amount")
+    @GetMapping("/top")
+    public ResponseEntity<List<ExpenseResponse>> getTopExpenses() {
+        return ResponseEntity.ok(expenseService.getTopExpenses());
     }
 }
