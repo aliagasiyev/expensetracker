@@ -34,6 +34,9 @@ public class ExpenseServiceImpl implements ExpenseService {
             validateExpenseData(request);
             Expense expense = expenseMapper.toEntity(request);
             return expenseMapper.toResponse(expenseRepository.save(expense));
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to create expense: " + e.getMessage());
         }
@@ -50,6 +53,9 @@ public class ExpenseServiceImpl implements ExpenseService {
             return expenses.stream()
                     .map(expenseMapper::toResponse)
                     .collect(Collectors.toList());
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to retrieve expenses: " + e.getMessage());
         }
@@ -62,6 +68,9 @@ public class ExpenseServiceImpl implements ExpenseService {
             return expenseRepository.findById(id)
                     .map(expenseMapper::toResponse)
                     .orElseThrow(() -> new ExpenseNotFoundException(id));
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to retrieve expense with id " + id + ": " + e.getMessage());
         }
@@ -79,6 +88,9 @@ public class ExpenseServiceImpl implements ExpenseService {
             return expenses.stream()
                     .map(expenseMapper::toResponse)
                     .collect(Collectors.toList());
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to retrieve expenses by date range: " + e.getMessage());
         }
@@ -94,6 +106,9 @@ public class ExpenseServiceImpl implements ExpenseService {
             Expense updatedExpense = expenseMapper.toEntity(request);
             updatedExpense.setId(existingExpense.getId());
             return expenseMapper.toResponse(expenseRepository.save(updatedExpense));
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to update expense: " + e.getMessage());
         }
@@ -106,6 +121,9 @@ public class ExpenseServiceImpl implements ExpenseService {
                 throw new ExpenseNotFoundException(id);
             }
             expenseRepository.deleteById(id);
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to delete expense: " + e.getMessage());
         }
@@ -144,6 +162,9 @@ public class ExpenseServiceImpl implements ExpenseService {
             statistics.put("lowestExpense", lowestExpense);
 
             return statistics;
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to calculate statistics: " + e.getMessage());
         }
@@ -164,6 +185,9 @@ public class ExpenseServiceImpl implements ExpenseService {
                         (maxAmount == null || expense.getAmount().compareTo(maxAmount) <= 0))
                     .map(expenseMapper::toResponse)
                     .collect(Collectors.toList());
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to search expenses: " + e.getMessage());
         }
@@ -181,6 +205,9 @@ public class ExpenseServiceImpl implements ExpenseService {
             return expenses.stream()
                     .map(expenseMapper::toResponse)
                     .collect(Collectors.toList());
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to retrieve today's expenses: " + e.getMessage());
         }
@@ -203,6 +230,9 @@ public class ExpenseServiceImpl implements ExpenseService {
                             BigDecimal::add
                         )
                     ));
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to group expenses by category: " + e.getMessage());
         }
@@ -221,6 +251,9 @@ public class ExpenseServiceImpl implements ExpenseService {
                     .limit(5)
                     .map(expenseMapper::toResponse)
                     .collect(Collectors.toList());
+        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException | 
+                InvalidExpenseDataException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to retrieve top expenses: " + e.getMessage());
         }

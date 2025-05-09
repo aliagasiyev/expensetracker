@@ -1,5 +1,11 @@
 package com.turing.expensetracker.exception;
 
-public class ExpenseCreationException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class ExpenseCreationException extends RuntimeException {
+    public ExpenseCreationException(String message) {
+        super(message);
+    }
 }

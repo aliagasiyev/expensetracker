@@ -1,5 +1,11 @@
 package com.turing.expensetracker.exception;
 
-public class ExpensePermissionException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+@ResponseStatus(HttpStatus.FORBIDDEN)
+public class ExpensePermissionException extends RuntimeException {
+    public ExpensePermissionException(String message) {
+        super(message);
+    }
 }
