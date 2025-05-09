@@ -3,9 +3,7 @@ package com.turing.expensetracker.service.impl;
 import com.turing.expensetracker.dto.request.ExpenseRequest;
 import com.turing.expensetracker.dto.response.ExpenseResponse;
 import com.turing.expensetracker.entity.Expense;
-import com.turing.expensetracker.exception.ExpenseNotFoundException;
-import com.turing.expensetracker.exception.InvalidDateRangeException;
-import com.turing.expensetracker.exception.InvalidExpenseDataException;
+import com.turing.expensetracker.exception.*;
 import com.turing.expensetracker.mapper.ExpenseMapper;
 import com.turing.expensetracker.repository.ExpenseRepository;
 import com.turing.expensetracker.service.ExpenseService;
@@ -32,89 +30,200 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public ExpenseResponse createExpense(ExpenseRequest request) {
-        validateExpenseData(request);
-        Expense expense = expenseMapper.toEntity(request);
-        return expenseMapper.toResponse(expenseRepository.save(expense));
+        try {
+            validateExpenseData(request);
+            Expense expense = expenseMapper.toEntity(request);
+            return expenseMapper.toResponse(expenseRepository.save(expense));
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to create expense: " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ExpenseResponse> getAllExpenses() {
-        return expenseRepository.findAll().stream()
-                .map(expenseMapper::toResponse)
-                .collect(Collectors.toList());
+        try {
+            List<Expense> expenses = expenseRepository.findAll();
+            if (expenses.isEmpty()) {
+                throw new ResourceNotFoundException("No expenses found");
+            }
+            return expenses.stream()
+                    .map(expenseMapper::toResponse)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to retrieve expenses: " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public ExpenseResponse getExpenseById(Long id) {
-        return expenseRepository.findById(id)
-                .map(expenseMapper::toResponse)
-                .orElseThrow(() -> new ExpenseNotFoundException(id));
+        try {
+            return expenseRepository.findById(id)
+                    .map(expenseMapper::toResponse)
+                    .orElseThrow(() -> new ExpenseNotFoundException(id));
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to retrieve expense with id " + id + ": " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ExpenseResponse> getExpensesByDateRange(LocalDate from, LocalDate to) {
-        validateDateRange(from, to);
-        return expenseRepository.findByDateBetween(from, to).stream()
-                .map(expenseMapper::toResponse)
-                .collect(Collectors.toList());
+        try {
+            validateDateRange(from, to);
+            List<Expense> expenses = expenseRepository.findByDateBetween(from, to);
+            if (expenses.isEmpty()) {
+                throw new ResourceNotFoundException("No expenses found in the specified date range");
+            }
+            return expenses.stream()
+                    .map(expenseMapper::toResponse)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to retrieve expenses by date range: " + e.getMessage());
+        }
     }
 
     @Override
     public ExpenseResponse updateExpense(Long id, ExpenseRequest request) {
-        validateExpenseData(request);
-        Expense existingExpense = expenseRepository.findById(id)
-                .orElseThrow(() -> new ExpenseNotFoundException(id));
-        
-        Expense updatedExpense = expenseMapper.toEntity(request);
-        updatedExpense.setId(existingExpense.getId());
-        return expenseMapper.toResponse(expenseRepository.save(updatedExpense));
+        try {
+            validateExpenseData(request);
+            Expense existingExpense = expenseRepository.findById(id)
+                    .orElseThrow(() -> new ExpenseNotFoundException(id));
+            
+            Expense updatedExpense = expenseMapper.toEntity(request);
+            updatedExpense.setId(existingExpense.getId());
+            return expenseMapper.toResponse(expenseRepository.save(updatedExpense));
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to update expense: " + e.getMessage());
+        }
     }
 
     @Override
     public void deleteExpense(Long id) {
-        if (!expenseRepository.existsById(id)) {
-            throw new ExpenseNotFoundException(id);
+        try {
+            if (!expenseRepository.existsById(id)) {
+                throw new ExpenseNotFoundException(id);
+            }
+            expenseRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to delete expense: " + e.getMessage());
         }
-        expenseRepository.deleteById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Map<String, Object> getStatistics() {
-        List<Expense> expenses = expenseRepository.findAll();
-        if (expenses.isEmpty()) {
-            throw new InvalidExpenseDataException("No expenses found to calculate statistics");
+        try {
+            List<Expense> expenses = expenseRepository.findAll();
+            if (expenses.isEmpty()) {
+                throw new ResourceNotFoundException("No expenses found to calculate statistics");
+            }
+
+            Map<String, Object> statistics = new HashMap<>();
+            
+            BigDecimal totalExpenses = expenses.stream()
+                    .map(Expense::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            statistics.put("totalExpenses", totalExpenses);
+
+            BigDecimal averageExpense = totalExpenses.divide(
+                    BigDecimal.valueOf(expenses.size()), 2, RoundingMode.HALF_UP);
+            statistics.put("averageExpense", averageExpense);
+
+            BigDecimal highestExpense = expenses.stream()
+                    .map(Expense::getAmount)
+                    .max(BigDecimal::compareTo)
+                    .orElse(BigDecimal.ZERO);
+            statistics.put("highestExpense", highestExpense);
+
+            BigDecimal lowestExpense = expenses.stream()
+                    .map(Expense::getAmount)
+                    .min(BigDecimal::compareTo)
+                    .orElse(BigDecimal.ZERO);
+            statistics.put("lowestExpense", lowestExpense);
+
+            return statistics;
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to calculate statistics: " + e.getMessage());
         }
+    }
 
-        Map<String, Object> statistics = new HashMap<>();
-        
-        // Calculate total expenses
-        BigDecimal totalExpenses = expenses.stream()
-                .map(Expense::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        statistics.put("totalExpenses", totalExpenses);
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> searchExpenses(String title, String category, LocalDate date,
+                                              BigDecimal minAmount, BigDecimal maxAmount) {
+        try {
+            validateSearchCriteria(title, category, date, minAmount, maxAmount);
+            return expenseRepository.findAll().stream()
+                    .filter(expense -> 
+                        (title == null || expense.getTitle().toLowerCase().contains(title.toLowerCase())) &&
+                        (category == null || expense.getCategory().equalsIgnoreCase(category)) &&
+                        (date == null || expense.getDate().equals(date)) &&
+                        (minAmount == null || expense.getAmount().compareTo(minAmount) >= 0) &&
+                        (maxAmount == null || expense.getAmount().compareTo(maxAmount) <= 0))
+                    .map(expenseMapper::toResponse)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to search expenses: " + e.getMessage());
+        }
+    }
 
-        BigDecimal averageExpense = totalExpenses.divide(
-                BigDecimal.valueOf(expenses.size()), 2, RoundingMode.HALF_UP);
-        statistics.put("averageExpense", averageExpense);
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> getTodayExpenses() {
+        try {
+            LocalDate today = LocalDate.now();
+            List<Expense> expenses = expenseRepository.findByDateBetween(today, today);
+            if (expenses.isEmpty()) {
+                throw new ResourceNotFoundException("No expenses found for today");
+            }
+            return expenses.stream()
+                    .map(expenseMapper::toResponse)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to retrieve today's expenses: " + e.getMessage());
+        }
+    }
 
-        BigDecimal highestExpense = expenses.stream()
-                .map(Expense::getAmount)
-                .max(BigDecimal::compareTo)
-                .orElse(BigDecimal.ZERO);
-        statistics.put("highestExpense", highestExpense);
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, BigDecimal> getExpensesByCategory() {
+        try {
+            List<Expense> expenses = expenseRepository.findAll();
+            if (expenses.isEmpty()) {
+                throw new ResourceNotFoundException("No expenses found to group by category");
+            }
+            return expenses.stream()
+                    .collect(Collectors.groupingBy(
+                        Expense::getCategory,
+                        Collectors.reducing(
+                            BigDecimal.ZERO,
+                            Expense::getAmount,
+                            BigDecimal::add
+                        )
+                    ));
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to group expenses by category: " + e.getMessage());
+        }
+    }
 
-        
-        BigDecimal lowestExpense = expenses.stream()
-                .map(Expense::getAmount)
-                .min(BigDecimal::compareTo)
-                .orElse(BigDecimal.ZERO);
-        statistics.put("lowestExpense", lowestExpense);
-
-        return statistics;
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> getTopExpenses() {
+        try {
+            List<Expense> expenses = expenseRepository.findAll();
+            if (expenses.isEmpty()) {
+                throw new ResourceNotFoundException("No expenses found to get top expenses");
+            }
+            return expenses.stream()
+                    .sorted((e1, e2) -> e2.getAmount().compareTo(e1.getAmount()))
+                    .limit(5)
+                    .map(expenseMapper::toResponse)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new InvalidExpenseDataException("Failed to retrieve top expenses: " + e.getMessage());
+        }
     }
 
     private void validateExpenseData(ExpenseRequest request) {
@@ -134,7 +243,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new InvalidExpenseDataException("Title cannot be empty");
         }
         if (request.getCategory() == null || request.getCategory().trim().isEmpty()) {
-            throw new InvalidExpenseDataException("Category cannot be empty");
+            throw new InvalidCategoryDataException("Category cannot be empty");
         }
     }
 
@@ -149,51 +258,26 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new InvalidDateRangeException("Date range cannot include future dates");
         }
     }
-    @Override
-    @Transactional(readOnly = true)
-    public List<ExpenseResponse> searchExpenses(String title, String category, LocalDate date,
-                                              BigDecimal minAmount, BigDecimal maxAmount) {
-        return expenseRepository.findAll().stream()
-                .filter(expense -> 
-                    (title == null || expense.getTitle().toLowerCase().contains(title.toLowerCase())) &&
-                    (category == null || expense.getCategory().equalsIgnoreCase(category)) &&
-                    (date == null || expense.getDate().equals(date)) &&
-                    (minAmount == null || expense.getAmount().compareTo(minAmount) >= 0) &&
-                    (maxAmount == null || expense.getAmount().compareTo(maxAmount) <= 0))
-                .map(expenseMapper::toResponse)
-                .collect(Collectors.toList());
-    }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ExpenseResponse> getTodayExpenses() {
-        LocalDate today = LocalDate.now();
-        return expenseRepository.findByDateBetween(today, today).stream()
-                .map(expenseMapper::toResponse)
-                .collect(Collectors.toList());
+    private void validateSearchCriteria(String title, String category, LocalDate date,
+                                      BigDecimal minAmount, BigDecimal maxAmount) {
+        if (title != null && title.trim().isEmpty()) {
+            throw new InvalidExpenseDataException("Title cannot be empty");
+        }
+        if (category != null && category.trim().isEmpty()) {
+            throw new InvalidCategoryDataException("Category cannot be empty");
+        }
+        if (date != null && date.isAfter(LocalDate.now())) {
+            throw new InvalidDateRangeException("Search date cannot be in the future");
+        }
+        if (minAmount != null && minAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidExpenseDataException("Minimum amount cannot be negative");
+        }
+        if (maxAmount != null && maxAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidExpenseDataException("Maximum amount cannot be negative");
+        }
+        if (minAmount != null && maxAmount != null && minAmount.compareTo(maxAmount) > 0) {
+            throw new InvalidExpenseDataException("Minimum amount cannot be greater than maximum amount");
+        }
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Map<String, BigDecimal> getExpensesByCategory() {
-        return expenseRepository.findAll().stream()
-                .collect(Collectors.groupingBy(
-                    Expense::getCategory,
-                    Collectors.reducing(
-                        BigDecimal.ZERO,
-                        Expense::getAmount,
-                        BigDecimal::add
-                    )
-                ));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ExpenseResponse> getTopExpenses() {
-        return expenseRepository.findAll().stream()
-                .sorted((e1, e2) -> e2.getAmount().compareTo(e1.getAmount()))
-                .limit(5)
-                .map(expenseMapper::toResponse)
-                .collect(Collectors.toList());
-    }
-} 
+}
