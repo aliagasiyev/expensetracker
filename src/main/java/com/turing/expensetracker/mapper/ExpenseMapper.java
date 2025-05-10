@@ -5,7 +5,7 @@ import com.turing.expensetracker.dto.response.ExpenseResponse;
 import com.turing.expensetracker.entity.Expense;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import java.util.List;
+
 
 @Mapper(componentModel = "spring")
 public interface ExpenseMapper {
@@ -17,5 +17,4 @@ public interface ExpenseMapper {
     @Mapping(target = "isIncome", source = "income")
     ExpenseResponse toResponse(Expense entity);
 
-    List<ExpenseResponse> toResponseList(List<Expense> entities);
 }

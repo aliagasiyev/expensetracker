@@ -166,7 +166,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 InvalidExpenseDataException | ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            throw new InvalidExpenseDataException("Failed to calculate statistics: " + e.getMessage());
+            throw new InvalidExpenseDataException("Failed to calculate statitics: " + e.getMessage());
         }
     }
 
@@ -189,7 +189,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 InvalidExpenseDataException | ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            throw new InvalidExpenseDataException("Failed to search expenses: " + e.getMessage());
+            throw new InvalidExpenseDataException("Failed to search expenses for here: " + e.getMessage());
         }
     }
 

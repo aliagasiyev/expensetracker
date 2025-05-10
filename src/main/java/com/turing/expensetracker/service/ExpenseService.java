@@ -25,6 +25,7 @@ public interface ExpenseService {
     Map<String, Object> getStatistics(); 
 
     List<ExpenseResponse> searchExpenses(String title, String category, LocalDate date, 
+    
     BigDecimal minAmount, BigDecimal maxAmount);
 
     List<ExpenseResponse> getTodayExpenses();
