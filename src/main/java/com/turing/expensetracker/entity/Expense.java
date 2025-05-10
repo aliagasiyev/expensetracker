@@ -22,9 +22,12 @@ public class Expense {
 
     private BigDecimal amount;
 
-    private String category; 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     private LocalDate date;
 
     private boolean isIncome; 
+    
 }

@@ -11,7 +11,7 @@ import com.turing.expensetracker.enums.CategoryType;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     List<Category> findByType(CategoryType type);
-    
+
     boolean existsByNameAndType(String name, CategoryType type);
 
 

@@ -2,6 +2,7 @@ package com.turing.expensetracker.controller;
 
 import com.turing.expensetracker.dto.request.ExpenseRequest;
 import com.turing.expensetracker.dto.response.ExpenseResponse;
+import com.turing.expensetracker.enums.CategoryType;
 import com.turing.expensetracker.service.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,19 +46,16 @@ public class ExpenseController {
             Long id) {
         return ResponseEntity.ok(expenseService.getExpenseById(id));
     }
-    
 
     @Operation(summary = "Get expenses within a date range")
     @GetMapping("/range")
     public ResponseEntity<List<ExpenseResponse>> getExpensesByDateRange(
             @Parameter(description = "Start date (ISO format)", required = true)
             @RequestParam(name = "from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-    
             @Parameter(description = "End date (ISO format)", required = true)
             @RequestParam(name = "to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         return ResponseEntity.ok(expenseService.getExpensesByDateRange(from, to));
     }
-    
 
     @Operation(summary = "Update an expense")
     @PutMapping("/{id}")
@@ -89,8 +87,8 @@ public class ExpenseController {
             @Parameter(description = "Title to search for")
             @RequestParam(required = false) String title,
             
-            @Parameter(description = "Category to filter by")
-            @RequestParam(required = false) String category,
+            @Parameter(description = "Category ID to filter by")
+            @RequestParam(required = false) Long categoryId,
             
             @Parameter(description = "Date to filter by (ISO format)")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -100,7 +98,7 @@ public class ExpenseController {
             
             @Parameter(description = "Maximum amount")
             @RequestParam(required = false) BigDecimal maxAmount) {
-        return ResponseEntity.ok(expenseService.searchExpenses(title, category, date, minAmount, maxAmount));
+        return ResponseEntity.ok(expenseService.searchExpenses(title, categoryId, date, minAmount, maxAmount));
     }
 
     @Operation(summary = "Get today's expenses")
@@ -109,9 +107,9 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getTodayExpenses());
     }
 
-    @Operation(summary = "Get expenses grouped by category")
+    @Operation(summary = "Get expenses grouped by category type")
     @GetMapping("/by-category")
-    public ResponseEntity<Map<String, BigDecimal>> getExpensesByCategory() {
+    public ResponseEntity<Map<CategoryType, BigDecimal>> getExpensesByCategory() {
         return ResponseEntity.ok(expenseService.getExpensesByCategory());
     }
 

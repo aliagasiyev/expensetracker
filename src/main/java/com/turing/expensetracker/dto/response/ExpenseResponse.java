@@ -18,9 +18,12 @@ public class ExpenseResponse {
 
     private BigDecimal amount; 
 
-    private String category; 
+    private CategoryResponse category;
 
     private LocalDate date; 
 
     private boolean isIncome; 
+
+    private String description;
+
 }
