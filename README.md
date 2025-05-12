@@ -11,7 +11,9 @@
 
 ### 🧭 System Architecture
 
-![System Architecture](docs/architecture.png)
+### 🧭 System Architecture
+
+![System Architecture](docs/architecture-dark.png)
 
 
 ## 📌 Project Overview
