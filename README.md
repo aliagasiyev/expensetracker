@@ -11,8 +11,6 @@
 
 ### 🧭 System Architecture
 
-### 🧭 System Architecture
-
 ![System Architecture](docs/architecture-dark.png)
 
 
