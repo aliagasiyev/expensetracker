@@ -107,6 +107,8 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getTodayExpenses());
     }
 
+
+
     @Operation(summary = "Get expenses grouped by category type")
     @GetMapping("/by-category")
     public ResponseEntity<Map<CategoryType, BigDecimal>> getExpensesByCategory() {
@@ -118,4 +120,15 @@ public class ExpenseController {
     public ResponseEntity<List<ExpenseResponse>> getTopExpenses() {
         return ResponseEntity.ok(expenseService.getTopExpenses());
     }
+
+    @Operation(summary = "Create multiple expenses at once")
+    @PostMapping("/bulk")
+    public ResponseEntity<List<ExpenseResponse>> createExpensesInBulk(
+            @Valid @RequestBody List<ExpenseRequest> requests) {
+        List<ExpenseResponse> responses = requests.stream()
+                .map(expenseService::createExpense)
+                .toList();
+        return new ResponseEntity<>(responses, HttpStatus.CREATED);
+    }
+
 }

@@ -22,7 +22,7 @@ public class ExpenseResponse {
 
     private LocalDate date; 
 
-    private boolean isIncome; 
+    private boolean income;
 
     private String description;
 

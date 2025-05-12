@@ -11,13 +11,13 @@ public interface ExpenseMapper {
     
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "category", ignore = true)
-    @Mapping(target = "isIncome", source = "income")
+    @Mapping(target = "income", source = "income")
     @Mapping(target = "title", source = "title")
     @Mapping(target = "amount", source = "amount")
     @Mapping(target = "date", source = "date")
     Expense toEntity(ExpenseRequest request);
 
-    @Mapping(target = "isIncome", source = "income")
+    @Mapping(target = "income", source = "income")
     @Mapping(target = "title", source = "title")
     @Mapping(target = "amount", source = "amount")
     @Mapping(target = "date", source = "date")

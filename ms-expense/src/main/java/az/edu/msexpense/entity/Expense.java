@@ -28,6 +28,6 @@ public class Expense {
 
     private LocalDate date;
 
-    private boolean isIncome; 
+    private boolean income;
     
 }
