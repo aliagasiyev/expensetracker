@@ -34,6 +34,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
+
     @Operation(summary = "Get categories by type")
     @GetMapping("/type/{type}")
     public ResponseEntity<List<CategoryResponse>> getCategoriesByType(
