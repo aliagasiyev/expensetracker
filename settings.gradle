@@ -1,1 +1,3 @@
 rootProject.name = 'expensetracker'
+include 'ms-expense'
+
