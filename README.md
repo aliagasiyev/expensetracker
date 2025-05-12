@@ -14,6 +14,7 @@
 ![System Architecture](docs/architecture-dark.png)
 
 
+
 ## 📌 Project Overview
 
 **Expense Tracker** is a backend system built with Java & Spring Boot to manage personal income and expenses. It allows users to create, update, view, delete, and analyze financial records.
