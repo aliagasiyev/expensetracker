@@ -12,12 +12,12 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "role", constant = "USER")
-    @Mapping(target = "active", constant = "true")
     User toEntity(RegisterRequest request);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "role", ignore = true)
+    @Mapping(target = "active", ignore = true)
     void updateEntity(@MappingTarget User user, UpdateProfileRequest request);
 
     UserResponse toResponse(User user);

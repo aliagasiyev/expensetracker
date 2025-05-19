@@ -1,17 +1,13 @@
 package az.edu.msauth.service.impl;
 
-import az.edu.msauth.dto.request.ChangePasswordRequest;
-import az.edu.msauth.dto.request.LoginRequest;
-import az.edu.msauth.dto.request.RegisterRequest;
-import az.edu.msauth.dto.request.UpdateProfileRequest;
+import az.edu.msauth.dto.request.*;
+import az.edu.msauth.dto.response.AdminStatistics;
 import az.edu.msauth.dto.response.AuthResponse;
 import az.edu.msauth.dto.response.UserResponse;
+import az.edu.msauth.entity.PasswordResetToken;
 import az.edu.msauth.entity.User;
 import az.edu.msauth.entity.UserRole;
-import az.edu.msauth.exception.InvalidCredentialsException;
-import az.edu.msauth.exception.InvalidPasswordException;
-import az.edu.msauth.exception.UserAlreadyExistsException;
-import az.edu.msauth.exception.UserNotFoundException;
+import az.edu.msauth.exception.*;
 import az.edu.msauth.mapper.UserMapper;
 import az.edu.msauth.repository.PasswordResetTokenRepository;
 import az.edu.msauth.repository.UserRepository;
@@ -19,12 +15,19 @@ import az.edu.msauth.security.JwtService;
 import az.edu.msauth.service.EmailService;
 import az.edu.msauth.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -32,9 +35,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
     private final UserMapper userMapper;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
 
     @Override
@@ -43,16 +47,16 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException("Email already registered");
         }
 
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .fullName(request.getFullName())
-                .phoneNumber(request.getPhoneNumber())
-                .role(UserRole.USER)
-                .build();
+        User user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(UserRole.USER);
+        user.setActive(true);
 
         user = userRepository.save(user);
         String token = jwtService.generateToken(user);
+
+        // Send welcome email
+        emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
 
         return AuthResponse.builder()
                 .token(token)
@@ -62,15 +66,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new InvalidCredentialsException("Invalid email or password");
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (!user.isActive()) {
+            throw new UserBlockedException("User account is blocked");
         }
 
         String token = jwtService.generateToken(user);
-
         return AuthResponse.builder()
                 .token(token)
                 .user(userMapper.toResponse(user))
@@ -80,33 +87,27 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserResponse getProfile(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = getUserById(userId);
         return userMapper.toResponse(user);
     }
 
     @Override
     public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = getUserById(userId);
 
         if (!user.getEmail().equals(request.getEmail()) &&
                 userRepository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("Email already in use");
         }
 
-        user.setEmail(request.getEmail());
-        user.setFullName(request.getFullName());
-        user.setPhoneNumber(request.getPhoneNumber());
-
+        userMapper.updateEntity(user, request);
         user = userRepository.save(user);
         return userMapper.toResponse(user);
     }
 
     @Override
     public void changePassword(Long userId, ChangePasswordRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = getUserById(userId);
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new InvalidPasswordException("Current password is incorrect");
@@ -133,10 +134,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         tokenRepository.save(resetToken);
-
-        // Send email with reset link
-        String resetLink = "http://your-frontend-url/reset-password?token=" + token;
-        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
+        emailService.sendPasswordResetEmail(user.getEmail(), token);
     }
 
     @Override
@@ -150,18 +148,64 @@ public class UserServiceImpl implements UserService {
 
         User user = resetToken.getUser();
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-
         resetToken.setUsed(true);
 
-        tokenRepository.save(resetToken);
         userRepository.save(user);
+        tokenRepository.save(resetToken);
     }
 
     @Override
     public void deleteUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException("User not found");
+        User user = getUserById(userId);
+        userRepository.delete(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserResponse> getAllUsers(String search, Pageable pageable) {
+        Page<User> users;
+        if (search != null && !search.trim().isEmpty()) {
+            users = userRepository.findByEmailContainingOrFullNameContaining(search, search, pageable);
+        } else {
+            users = userRepository.findAll(pageable);
         }
-        userRepository.deleteById(userId);
+        return users.map(userMapper::toResponse);
+    }
+
+    @Override
+    public void blockUser(Long userId) {
+        User user = getUserById(userId);
+        if (user.getRole() == UserRole.ADMIN) {
+            throw new InvalidCredentialsException("Cannot block admin users");
+        }
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void unblockUser(Long userId) {
+        User user = getUserById(userId);
+        user.setActive(true);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminStatistics getAdminStatistics() {
+        LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
+        LocalDateTime firstDayOfMonth = today.withDayOfMonth(1);
+
+        return AdminStatistics.builder()
+                .totalUsers(userRepository.count())
+                .activeUsers(userRepository.countByActiveTrue())
+                .blockedUsers(userRepository.countByActiveFalse())
+                .newUsersToday(userRepository.countByCreatedAtAfter(today))
+                .newUsersThisMonth(userRepository.countByCreatedAtAfter(firstDayOfMonth))
+                .build();
+    }
+
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
     }
 }
