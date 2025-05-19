@@ -1,4 +1,6 @@
 package az.edu.msauth.entity;
 
-public class UserRole {
+public enum UserRole {
+    USER,
+    ADMIN
 }
