@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: ms-auth
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/expensetracker
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ilkinrzayev07700@gmail.com
+    password: yisl dsgz exqe gawe
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: 86400000 # 24 hours
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    az.edu.msauth: DEBUG
