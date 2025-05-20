@@ -4,6 +4,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import az.edu.msauth.entity.User;
+import io.jsonwebtoken.Claims;
 
 @Component
 public class SecurityUtils {
@@ -30,7 +32,11 @@ public class SecurityUtils {
     public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
-            return (Long) authentication.getCredentials();
+            // Get claims from authentication
+            if (authentication.getCredentials() instanceof Claims) {
+                Claims claims = (Claims) authentication.getCredentials();
+                return claims.get("userId", Long.class);
+            }
         }
         return null;
     }
@@ -53,30 +59,5 @@ public class SecurityUtils {
         return authentication != null &&
                 authentication.isAuthenticated() &&
                 !"anonymousUser".equals(authentication.getPrincipal());
-    }
-
-    /**
-     * Check if current user has specific role
-     */
-    public static boolean hasRole(String role) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null &&
-                authentication.getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
-    }
-
-    /**
-     * Check if current user owns the resource
-     */
-    public static boolean isResourceOwner(Long resourceUserId) {
-        Long currentUserId = getCurrentUserId();
-        return currentUserId != null && currentUserId.equals(resourceUserId);
-    }
-
-    /**
-     * Clear security context
-     */
-    public static void clearSecurityContext() {
-        SecurityContextHolder.clearContext();
     }
 }
