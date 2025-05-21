@@ -22,6 +22,9 @@ public class Expense {
 
     private BigDecimal amount;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;

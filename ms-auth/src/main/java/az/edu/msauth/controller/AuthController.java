@@ -46,4 +46,5 @@ public class AuthController {
         userService.resetPassword(request);
         return ResponseEntity.ok().build();
     }
+
 }

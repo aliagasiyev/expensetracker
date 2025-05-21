@@ -15,6 +15,7 @@ public interface ExpenseMapper {
     @Mapping(target = "title", source = "title")
     @Mapping(target = "amount", source = "amount")
     @Mapping(target = "date", source = "date")
+    @Mapping(target = "userId", ignore = true)
     Expense toEntity(ExpenseRequest request);
 
     @Mapping(target = "income", source = "income")

@@ -14,6 +14,12 @@ spring:
             - Path=/api/auth/**, /api/users/**
           filters:
             - RewritePath=/api/(?<segment>.*), /api/$\{segment}
+        - id: ms-expense
+          uri: lb://ms-expense
+          predicates:
+            - Path=/api/expenses/**, /api/categories/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /api/$\{segment}
 
       discovery:
         locator:

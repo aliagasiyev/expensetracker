@@ -25,5 +25,7 @@ public class ExpenseResponse {
     private boolean income;
 
     private String description;
+    
+    private Long userId;
 
 }

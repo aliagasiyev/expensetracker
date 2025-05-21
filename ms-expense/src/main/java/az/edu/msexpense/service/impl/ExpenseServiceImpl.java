@@ -11,6 +11,7 @@ import az.edu.msexpense.exception.*;
 import az.edu.msexpense.mapper.ExpenseMapper;
 import az.edu.msexpense.repository.CategoryRepository;
 import az.edu.msexpense.repository.ExpenseRepository;
+import az.edu.msexpense.security.SecurityUtils;
 import az.edu.msexpense.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,41 +33,46 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final CategoryRepository categoryRepository;
     private final ExpenseMapper expenseMapper;
+    private final SecurityUtils securityUtils; // əlavə et
 
     @Override
     public ExpenseResponse createExpense(ExpenseRequest request) {
         try {
             validateExpenseData(request);
-    
+
             Expense expense = expenseMapper.toEntity(request);
-    
+            expense.setUserId(securityUtils.getCurrentUserId());
+
             Category category = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new InvalidCategoryDataException("Category not found with ID: " + request.getCategoryId()));
+                    .orElseThrow(() -> new InvalidCategoryDataException("Category not found"));
             expense.setCategory(category);
-    
+
             return expenseMapper.toResponse(expenseRepository.save(expense));
-        } catch (ExpenseNotFoundException | InvalidCategoryDataException | InvalidDateRangeException |
-                 InvalidExpenseDataException | ResourceNotFoundException e) {
-            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to create expense: " + e.getMessage());
         }
     }
-    
+
 
     @Override
     @Transactional(readOnly = true)
     public List<ExpenseResponse> getAllExpenses() {
         try {
-            List<Expense> expenses = expenseRepository.findAll();
+            List<Expense> expenses;
+
+            if (securityUtils.isAdmin()) {
+                expenses = expenseRepository.findAll();
+            } else {
+                expenses = expenseRepository.findByUserId(securityUtils.getCurrentUserId());
+            }
+
             if (expenses.isEmpty()) {
                 throw new ResourceNotFoundException("No expenses found");
             }
+
             return expenses.stream()
                     .map(expenseMapper::toResponse)
                     .collect(Collectors.toList());
-        } catch (ResourceNotFoundException e) {
-            throw e;
         } catch (Exception e) {
             throw new InvalidExpenseDataException("Failed to retrieve expenses: " + e.getMessage());
         }
@@ -76,32 +82,37 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Transactional(readOnly = true)
     public ExpenseResponse getExpenseById(Long id) {
         try {
-            return expenseRepository.findById(id)
-                    .map(expenseMapper::toResponse)
+            Expense expense = expenseRepository.findById(id)
                     .orElseThrow(() -> new ExpenseNotFoundException(id));
-        } catch (ExpenseNotFoundException e) {
-            throw e;
+
+            securityUtils.validateUserAccess(expense.getUserId());
+
+            return expenseMapper.toResponse(expense);
         } catch (Exception e) {
-            throw new InvalidExpenseDataException("Failed to retrieve expense with id " + id + ": " + e.getMessage());
+            throw new InvalidExpenseDataException("Failed to retrieve expense: " + e.getMessage());
         }
     }
+
 
     @Override
     @Transactional(readOnly = true)
     public List<ExpenseResponse> getExpensesByDateRange(LocalDate from, LocalDate to) {
         try {
             validateDateRange(from, to);
-            List<Expense> expenses = expenseRepository.findByDateBetween(from, to);
-            if (expenses.isEmpty()) {
-                throw new ResourceNotFoundException("No expenses found in the specified date range");
+
+            List<Expense> expenses;
+            if (securityUtils.isAdmin()) {
+                expenses = expenseRepository.findByDateBetween(from, to);
+            } else {
+                expenses = expenseRepository.findByUserIdAndDateBetween(
+                        securityUtils.getCurrentUserId(), from, to);
             }
+
             return expenses.stream()
                     .map(expenseMapper::toResponse)
                     .collect(Collectors.toList());
-        } catch (ResourceNotFoundException | InvalidDateRangeException e) {
-            throw e;
         } catch (Exception e) {
-            throw new InvalidExpenseDataException("Failed to retrieve expenses by date range: " + e.getMessage());
+            throw new InvalidExpenseDataException("Failed to retrieve expenses: " + e.getMessage());
         }
     }
 

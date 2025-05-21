@@ -11,4 +11,8 @@ import java.util.List;
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     List<Expense> findByDateBetween(LocalDate from, LocalDate to);
+
+    List<Expense> findByUserId(Long currentUserId);
+
+    List<Expense> findByUserIdAndDateBetween(Long currentUserId, LocalDate from, LocalDate to);
 } 
