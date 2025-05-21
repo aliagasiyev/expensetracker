@@ -107,8 +107,6 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getTodayExpenses());
     }
 
-
-
     @Operation(summary = "Get expenses grouped by category type")
     @GetMapping("/by-category")
     public ResponseEntity<Map<CategoryType, BigDecimal>> getExpensesByCategory() {
