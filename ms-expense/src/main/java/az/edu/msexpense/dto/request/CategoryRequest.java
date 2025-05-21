@@ -13,7 +13,7 @@ import lombok.*;
 @Builder
 public class CategoryRequest {
 
-    @NotBlank(message = "Name cannot be blank")
+    @NotBlank(message = "Name cannot be bslank")
     private String name;
 
     @NotNull(message = "Category type cannot be null")
