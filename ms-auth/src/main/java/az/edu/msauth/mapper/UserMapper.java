@@ -20,5 +20,6 @@ public interface UserMapper {
     @Mapping(target = "active", ignore = true)
     void updateEntity(@MappingTarget User user, UpdateProfileRequest request);
 
+
     UserResponse toResponse(User user);
 }

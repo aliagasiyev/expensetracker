@@ -1,7 +1,5 @@
 package az.edu.msexpense.controller;
 
-
-
 import az.edu.msexpense.dto.request.CategoryRequest;
 import az.edu.msexpense.dto.response.CategoryResponse;
 import az.edu.msexpense.enums.CategoryType;

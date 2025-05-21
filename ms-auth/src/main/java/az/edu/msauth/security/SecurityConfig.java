@@ -32,13 +32,13 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
 
     private static final String[] PUBLIC_URLS = {
-            "/v1/auth/**",
-            "/v1/auth/register",
-            "/v1/auth/login",
-            "/v1/auth/forgot-password",
-            "/v1/auth/reset-password",
+            "/api/auth/register",
+            "/api/auth/login",
+            "/api/auth/forgot-password",
+            "/auth/register",        // path prefix olmadan
+            "/auth/login",          // path prefix olmadan
+            "/auth/**",             // bütün auth endpoint-ləri
             "/v3/api-docs/**",
-            "/v3/api-docs.yaml",
             "/swagger-ui/**",
             "/swagger-ui.html"
     };

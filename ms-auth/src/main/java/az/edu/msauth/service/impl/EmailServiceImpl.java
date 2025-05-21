@@ -20,8 +20,16 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
+    @Value("${app.email.enabled:false}")
+    private boolean emailEnabled;
+
     @Override
     public void sendPasswordResetEmail(String to, String resetToken) {
+        if (!emailEnabled) {
+            log.info("Email sending is disabled. Would have sent password reset email to: {}", to);
+            return;
+        }
+
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
@@ -37,6 +45,11 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendWelcomeEmail(String to, String fullName) {
+        if (!emailEnabled) {
+            log.info("Email sending is disabled. Would have sent welcome email to: {}", to);
+            return;
+        }
+
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);

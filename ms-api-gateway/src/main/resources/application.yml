@@ -1,3 +1,4 @@
+# ms-api-gateway/src/main/resources/application.yml
 server:
   port: 8080
 
@@ -6,17 +7,18 @@ spring:
     name: ms-api-gateway
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
       routes:
         - id: ms-auth
           uri: lb://ms-auth
           predicates:
             - Path=/api/auth/**, /api/users/**
           filters:
-            - StripPrefix=0
+            - RewritePath=/api/(?<segment>.*), /api/$\{segment}
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
 
 eureka:
   client:

@@ -1,5 +1,6 @@
 package az.edu.msexpense.controller;
 
+import az.edu.msexpense.client.TokenValidationResponse;
 import az.edu.msexpense.dto.request.ExpenseRequest;
 import az.edu.msexpense.dto.response.ExpenseResponse;
 import az.edu.msexpense.enums.CategoryType;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/expenses")
+@RequestMapping("/api/expenses")
 @RequiredArgsConstructor
 public class ExpenseController {
 
@@ -127,6 +129,13 @@ public class ExpenseController {
                 .map(expenseService::createExpense)
                 .toList();
         return new ResponseEntity<>(responses, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var user = (TokenValidationResponse) auth.getPrincipal();
+        return ResponseEntity.ok("Hello from expense service, " + user.getEmail());
     }
 
 }

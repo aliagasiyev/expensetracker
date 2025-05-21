@@ -19,5 +19,9 @@ public class RegisterRequest {
             message = "Password must be at least 8 characters long and contain at least one digit, one uppercase, one lowercase letter, and one special character")
     private String password;
 
+    @Pattern(
+            regexp = "^\\+?[1-9]\\d{1,14}$",
+            message = "Phone number should be valid (E.164 format, e.g., +994501234567)"
+    )
     private String phoneNumber;
 }
