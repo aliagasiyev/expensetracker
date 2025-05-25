@@ -30,7 +30,7 @@ public class UserController {
     // ✅ Hər kəs öz profilini görə bilər
     @Operation(summary = "Get current user profile")
     @GetMapping("/me")
-    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ADMIN')")
+    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserResponse> getCurrentUser() {
         log.debug("getCurrentUser() method called");
         Long userId = SecurityUtils.getCurrentUserId();

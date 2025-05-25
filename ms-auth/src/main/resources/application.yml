@@ -52,4 +52,7 @@ app:
 logging:
   level:
     org.springframework.security: DEBUG
+    org.springframework.security.access: DEBUG
+    org.springframework.security.access.prepost: DEBUG
+    org.springframework.security.access.method: DEBUG
     az.edu.msauth: DEBUG
