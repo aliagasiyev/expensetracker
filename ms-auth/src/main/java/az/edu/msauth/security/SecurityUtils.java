@@ -29,22 +29,21 @@ public class SecurityUtils {
     }
 
     /**
-     * Get the current authenticated user's ID from JWT claims
+     * Get the current authenticated user's ID from JWT authentication
      */
     public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug("Getting current user ID, authentication: {}", authentication);
         
         if (authentication != null && authentication.isAuthenticated()) {
-            log.debug("Authentication credentials type: {}", authentication.getCredentials().getClass());
-            // Get claims from authentication
-            if (authentication.getCredentials() instanceof Claims) {
-                Claims claims = (Claims) authentication.getCredentials();
-                Long userId = claims.get("userId", Long.class);
-                log.debug("Extracted userId from claims: {}", userId);
+            // Check if it's our custom JWT authentication token
+            if (authentication instanceof JwtAuthenticationToken) {
+                JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+                Long userId = jwtAuth.getUserId();
+                log.debug("Extracted userId from JwtAuthenticationToken: {}", userId);
                 return userId;
             } else {
-                log.debug("Credentials are not Claims, they are: {}", authentication.getCredentials());
+                log.debug("Authentication is not JwtAuthenticationToken, it's: {}", authentication.getClass());
             }
         } else {
             log.debug("Authentication is null or not authenticated");
