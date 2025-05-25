@@ -6,10 +6,13 @@ import az.edu.msexpense.enums.CategoryType;
 import az.edu.msexpense.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,19 +20,25 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Categories", description = "Category management APIs")
 public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @Operation(summary = "Create a new category")
+    // ✅ Yalnız admin kateqoriya yarada bilər
+    @Operation(summary = "Create a new category (Admin only)")
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponse> createCategory(
             @Valid @RequestBody CategoryRequest request) {
         return new ResponseEntity<>(categoryService.createCategory(request), HttpStatus.CREATED);
     }
 
+    // ✅ Hər kəs kateqoriyaları görə bilər
     @Operation(summary = "Get all categories")
     @GetMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
@@ -52,8 +61,10 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
-    @Operation(summary = "Update a category")
+    // ✅ Yalnız admin kateqoriya yeniləyə bilər
+    @Operation(summary = "Update a category (Admin only)")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponse> updateCategory(
             @Parameter(description = "ID of the category to update", required = true)
             @PathVariable(name = "id") Long id,
@@ -61,8 +72,10 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
-    @Operation(summary = "Delete a category")
+    // ✅ Yalnız admin kateqoriya silə bilər
+    @Operation(summary = "Delete a category (Admin only)")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCategory(
             @Parameter(description = "ID of the category to delete", required = true)
             @PathVariable("id") Long id) {

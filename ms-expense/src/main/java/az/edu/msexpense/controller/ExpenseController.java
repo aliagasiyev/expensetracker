@@ -7,11 +7,14 @@ import az.edu.msexpense.enums.CategoryType;
 import az.edu.msexpense.service.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,25 +26,41 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/expenses")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Expenses", description = "Expense management APIs")
 public class ExpenseController {
 
     private final ExpenseService expenseService;
 
+    // ✅ Hər kəs öz xərcini yarada bilər
     @Operation(summary = "Create a new expense")
     @PostMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ExpenseResponse> createExpense(
             @Valid @RequestBody ExpenseRequest request) {
         return new ResponseEntity<>(expenseService.createExpense(request), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Get all expenses")
+    // ✅ USER yalnız öz xərclərini, ADMIN hamısını görə bilər
+    @Operation(summary = "Get user's expenses")
     @GetMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<List<ExpenseResponse>> getUserExpenses() {
+        return ResponseEntity.ok(expenseService.getAllExpenses());
+    }
+
+    // ✅ Yalnız admin bütün xərcləri görə bilər
+    @Operation(summary = "Get all expenses (Admin only)")
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ExpenseResponse>> getAllExpenses() {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
 
+    // ✅ USER yalnız öz xərcini, ADMIN hamısını görə bilər
     @Operation(summary = "Get expense by ID")
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ExpenseResponse> getExpenseById(
             @PathVariable(name = "id") 
             @Parameter(description = "ID of the expense to retrieve", required = true) 
@@ -59,8 +78,10 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getExpensesByDateRange(from, to));
     }
 
+    // ✅ USER yalnız öz xərcini yeniləyə bilər
     @Operation(summary = "Update an expense")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ExpenseResponse> updateExpense(
             @Parameter(description = "ID of the expense to update", required = true)
             @PathVariable(name = "id") Long id,
@@ -68,8 +89,10 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.updateExpense(id, request));
     }
 
+    // ✅ USER yalnız öz xərcini silə bilər
     @Operation(summary = "Delete an expense by ID")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Void> deleteExpense(
             @Parameter(description = "ID of the expense to delete", required = true)
             @PathVariable("id") Long id) {

@@ -1,19 +1,13 @@
-package az.edu.msauth.security;
+package az.edu.msexpense.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -30,15 +24,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final CustomUserDetailsService userDetailsService;
 
     private static final String[] PUBLIC_URLS = {
-            "/api/auth/register",
-            "/api/auth/login",
-            "/api/auth/forgot-password",
-            "/auth/register",
-            "/auth/login",
-            "/auth/forgot-password",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
@@ -51,19 +38,23 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // 🌐 Public endpoints - hər kəs çıxış edə bilər
+                        // 🌐 Public endpoints
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         
-                        // 👑 Admin only endpoints - yalnız admin çıxış edə bilər
-                        .requestMatchers("/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/v1/users/all").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/v1/users/{id}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/v1/users/{id}").hasRole("ADMIN")
+                        // 👑 Admin only endpoints - Category management
+                        .requestMatchers(HttpMethod.POST, "/api/categories").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
                         
-                        // 👤 User endpoints - authenticated users can access
-                        .requestMatchers("/v1/users/me").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/v1/users/profile").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/v1/users/change-password").hasAnyRole("USER", "ADMIN")
+                        // 👑 Admin only endpoints - System level operations
+                        .requestMatchers("/api/expenses/all").hasRole("ADMIN")
+                        .requestMatchers("/api/expenses/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/categories/admin/**").hasRole("ADMIN")
+                        
+                        // 👤 User endpoints - Authenticated users can access
+                        .requestMatchers(HttpMethod.GET, "/api/categories").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/expenses/**").hasAnyRole("USER", "ADMIN")
                         
                         // 🔒 All other requests need authentication
                         .anyRequest().authenticated()
@@ -71,7 +62,6 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -88,22 +78,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-}
+} 
