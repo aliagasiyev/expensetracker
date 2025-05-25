@@ -56,15 +56,15 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         
                         // 👑 Admin only endpoints - yalnız admin çıxış edə bilər
-                        .requestMatchers("/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/v1/users/all").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/v1/users/{id}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/v1/users/{id}").hasRole("ADMIN")
+                        .requestMatchers("/v1/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v1/users/all").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v1/users/{id}").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/users/{id}").hasAuthority("ROLE_ADMIN")
                         
                         // 👤 User endpoints - authenticated users can access
-                        .requestMatchers("/v1/users/me").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/v1/users/profile").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/v1/users/change-password").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/v1/users/me").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/v1/users/profile").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/v1/users/change-password").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         
                         // 🔒 All other requests need authentication
                         .anyRequest().authenticated()
