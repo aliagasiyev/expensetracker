@@ -51,10 +51,20 @@ public class JwtService {
                 .getBody();
     }
 
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final Claims claims = extractAllClaims(token);
         final String username = claims.getSubject();
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(claims);
+    }
+
+    public boolean isTokenValid(String token, User user) {
+        final Claims claims = extractAllClaims(token);
+        final String username = claims.getSubject();
+        return (username.equals(user.getEmail())) && !isTokenExpired(claims);
     }
 
     private boolean isTokenExpired(Claims claims) {

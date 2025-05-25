@@ -4,6 +4,7 @@ import az.edu.msauth.dto.request.*;
 import az.edu.msauth.dto.response.AdminStatistics;
 import az.edu.msauth.dto.response.AuthResponse;
 import az.edu.msauth.dto.response.UserResponse;
+import az.edu.msauth.dto.response.TokenValidationResponse;
 import az.edu.msauth.entity.PasswordResetToken;
 import az.edu.msauth.entity.User;
 import az.edu.msauth.entity.UserRole;
@@ -82,6 +83,28 @@ public class UserServiceImpl implements UserService {
                 .token(token)
                 .user(userMapper.toResponse(user))
                 .build();
+    }
+
+    @Override
+    public TokenValidationResponse validateToken(String token) {
+        try {
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            
+            String email = jwtService.extractUsername(token);
+            User user = userRepository.findByEmail(email)
+                    .orElse(null);
+                    
+            if (user != null && jwtService.isTokenValid(token, user)) {
+                return new TokenValidationResponse(true, user.getId(), user.getEmail(), user.getRole().name());
+            }
+            
+            return new TokenValidationResponse(false, null, null, null);
+        } catch (Exception e) {
+            log.error("Token validation failed: {}", e.getMessage());
+            return new TokenValidationResponse(false, null, null, null);
+        }
     }
 
     @Override

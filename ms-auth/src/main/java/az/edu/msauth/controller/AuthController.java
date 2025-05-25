@@ -5,6 +5,8 @@ import az.edu.msauth.dto.request.RegisterRequest;
 import az.edu.msauth.dto.request.ForgotPasswordRequest;
 import az.edu.msauth.dto.request.ResetPasswordRequest;
 import az.edu.msauth.dto.response.AuthResponse;
+import az.edu.msauth.dto.response.TokenValidationResponse;
+import az.edu.msauth.dto.response.TokenValidationResponse;
 import az.edu.msauth.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,6 +47,12 @@ public class AuthController {
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         userService.resetPassword(request);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Validate JWT token")
+    @GetMapping("/validate")
+    public ResponseEntity<TokenValidationResponse> validateToken(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(userService.validateToken(token));
     }
 
 }

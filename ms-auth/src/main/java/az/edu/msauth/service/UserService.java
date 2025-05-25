@@ -4,6 +4,7 @@ import az.edu.msauth.dto.request.*;
 import az.edu.msauth.dto.response.AuthResponse;
 import az.edu.msauth.dto.response.UserResponse;
 import az.edu.msauth.dto.response.AdminStatistics;
+import az.edu.msauth.dto.response.TokenValidationResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,6 +12,7 @@ public interface UserService {
     // Authentication
     AuthResponse register(RegisterRequest request);
     AuthResponse login(LoginRequest request);
+    TokenValidationResponse validateToken(String token);
 
     // User Profile
     UserResponse getProfile(Long userId);
