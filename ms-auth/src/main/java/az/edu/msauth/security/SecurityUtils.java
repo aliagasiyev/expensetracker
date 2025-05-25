@@ -34,6 +34,8 @@ public class SecurityUtils {
     public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug("Getting current user ID, authentication: {}", authentication);
+        log.debug("Authentication class: {}", authentication != null ? authentication.getClass() : "null");
+        log.debug("Is authenticated: {}", authentication != null ? authentication.isAuthenticated() : "null");
         
         if (authentication != null && authentication.isAuthenticated()) {
             // Check if it's our custom JWT authentication token
@@ -44,6 +46,7 @@ public class SecurityUtils {
                 return userId;
             } else {
                 log.debug("Authentication is not JwtAuthenticationToken, it's: {}", authentication.getClass());
+                log.debug("Authentication details: {}", authentication);
             }
         } else {
             log.debug("Authentication is null or not authenticated");
