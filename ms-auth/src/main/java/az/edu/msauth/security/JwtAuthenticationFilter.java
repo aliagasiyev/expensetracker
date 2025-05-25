@@ -55,12 +55,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     log.debug("Successfully set authentication for user: {}", userEmail);
+                    log.debug("Authentication object: {}", authToken);
+                    log.debug("Authorities: {}", authToken.getAuthorities());
                 } else {
                     log.debug("Token validation failed for user: {}", userEmail);
                 }
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication", e);
+        }
+
+        // Log final authentication state before passing to next filter
+        var finalAuth = SecurityContextHolder.getContext().getAuthentication();
+        log.debug("Final authentication before next filter: {}", finalAuth);
+        if (finalAuth != null) {
+            log.debug("Final authorities: {}", finalAuth.getAuthorities());
         }
 
         filterChain.doFilter(request, response);

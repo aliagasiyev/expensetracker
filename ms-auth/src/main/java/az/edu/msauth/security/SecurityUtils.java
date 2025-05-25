@@ -6,8 +6,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import az.edu.msauth.entity.User;
 import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class SecurityUtils {
 
     /**
@@ -31,12 +33,21 @@ public class SecurityUtils {
      */
     public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.debug("Getting current user ID, authentication: {}", authentication);
+        
         if (authentication != null && authentication.isAuthenticated()) {
+            log.debug("Authentication credentials type: {}", authentication.getCredentials().getClass());
             // Get claims from authentication
             if (authentication.getCredentials() instanceof Claims) {
                 Claims claims = (Claims) authentication.getCredentials();
-                return claims.get("userId", Long.class);
+                Long userId = claims.get("userId", Long.class);
+                log.debug("Extracted userId from claims: {}", userId);
+                return userId;
+            } else {
+                log.debug("Credentials are not Claims, they are: {}", authentication.getCredentials());
             }
+        } else {
+            log.debug("Authentication is null or not authenticated");
         }
         return null;
     }
