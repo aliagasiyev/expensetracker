@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import az.edu.msanalytics.security.AdminOnly;
+import az.edu.msanalytics.security.OwnerOrAdmin;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +28,7 @@ public class AnalyticsController {
     // ✅ USER yalnız öz statistikasını görə bilər
     @Operation(summary = "Get monthly summary for user")
     @GetMapping("/monthly-summary")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #userId == authentication.principal.id)")
+    @OwnerOrAdmin
     public ResponseEntity<List<MonthlySummaryResponse>> getMonthlySummary(
             @Parameter(description = "User ID") @RequestParam Long userId,
             @Parameter(description = "Year") @RequestParam int year) {
@@ -36,7 +38,7 @@ public class AnalyticsController {
     // ✅ USER yalnız öz xülasəsini görə bilər
     @Operation(summary = "Get user summary")
     @GetMapping("/summary/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #userId == authentication.principal.id)")
+    @OwnerOrAdmin
     public ResponseEntity<Map<String, Object>> getUserSummary(@PathVariable Long userId) {
         return ResponseEntity.ok(analyticsService.getUserSummary(userId));
     }
@@ -44,7 +46,7 @@ public class AnalyticsController {
     // ✅ USER yalnız öz kateqoriya analitikasını görə bilər
     @Operation(summary = "Get expenses by category for user")
     @GetMapping("/by-category/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #userId == authentication.principal.id)")
+    @OwnerOrAdmin
     public ResponseEntity<Map<String, Object>> getExpensesByCategory(@PathVariable Long userId) {
         return ResponseEntity.ok(analyticsService.getExpensesByCategory(userId));
     }
@@ -52,7 +54,7 @@ public class AnalyticsController {
     // ✅ USER yalnız öz qrafik məlumatlarını görə bilər
     @Operation(summary = "Get chart data for user")
     @GetMapping("/chart-data/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #userId == authentication.principal.id)")
+    @OwnerOrAdmin
     public ResponseEntity<Map<String, Object>> getChartData(@PathVariable Long userId) {
         return ResponseEntity.ok(analyticsService.getChartData(userId));
     }
@@ -60,7 +62,7 @@ public class AnalyticsController {
     // ✅ USER yalnız öz müqayisəsini görə bilər
     @Operation(summary = "Compare months for user")
     @GetMapping("/compare-months/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #userId == authentication.principal.id)")
+    @OwnerOrAdmin
     public ResponseEntity<Map<String, Object>> compareMonths(@PathVariable Long userId) {
         return ResponseEntity.ok(analyticsService.compareMonths(userId));
     }
@@ -68,7 +70,7 @@ public class AnalyticsController {
     // ✅ USER yalnız öz top xərclərini görə bilər
     @Operation(summary = "Get top expenses for user")
     @GetMapping("/top-expenses/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #userId == authentication.principal.id)")
+    @OwnerOrAdmin
     public ResponseEntity<List<Map<String, Object>>> getTopExpenses(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "5") int limit) {
@@ -78,7 +80,7 @@ public class AnalyticsController {
     // ✅ Yalnız admin sistem statistikasını görə bilər
     @Operation(summary = "Get system overview (Admin only)")
     @GetMapping("/system-overview")
-    @PreAuthorize("hasRole('ADMIN')")
+    @AdminOnly
     public ResponseEntity<Map<String, Object>> getSystemOverview() {
         return ResponseEntity.ok(analyticsService.getSystemOverview());
     }
@@ -86,7 +88,7 @@ public class AnalyticsController {
     // ✅ Yalnız admin bütün istifadəçi statistikasını görə bilər
     @Operation(summary = "Get all users summary (Admin only)")
     @GetMapping("/all-users-summary")
-    @PreAuthorize("hasRole('ADMIN')")
+    @AdminOnly
     public ResponseEntity<List<Map<String, Object>>> getAllUsersSummary() {
         return ResponseEntity.ok(analyticsService.getAllUsersSummary());
     }
