@@ -42,7 +42,6 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
 
-    @Override
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("Email already registered");
@@ -50,7 +49,13 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(UserRole.USER);
+
+        // Düzgün rol təyini
+        if (request.getRole() != null && request.getRole().equalsIgnoreCase("ADMIN")) {
+            user.setRole(UserRole.ADMIN);
+        } else {
+            user.setRole(UserRole.USER);
+        }
         user.setActive(true);
 
         user = userRepository.save(user);

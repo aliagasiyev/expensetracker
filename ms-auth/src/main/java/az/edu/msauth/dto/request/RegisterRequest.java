@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
+
 public class RegisterRequest {
     @NotBlank(message = "Full name is required")
     private String fullName;
@@ -24,4 +25,7 @@ public class RegisterRequest {
             message = "Phone number should be valid (E.164 format, e.g., +994501234567)"
     )
     private String phoneNumber;
-}
+
+    @NotBlank(message = "Role is required")
+    private String role;
+    }

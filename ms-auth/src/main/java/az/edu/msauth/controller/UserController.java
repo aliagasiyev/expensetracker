@@ -27,10 +27,8 @@ public class UserController {
 
     private final UserService userService;
 
-    // ✅ Hər kəs öz profilini görə bilər
     @Operation(summary = "Get current user profile")
     @GetMapping("/me")
-    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserResponse> getCurrentUser() {
         log.debug("getCurrentUser() method called");
         Long userId = SecurityUtils.getCurrentUserId();
@@ -38,7 +36,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile(userId));
     }
 
-    // ✅ Yalnız admin başqalarının profilini görə bilər
     @Operation(summary = "Get user by ID (Admin only)")
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -46,7 +43,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile(id));
     }
 
-    // ✅ Yalnız admin bütün istifadəçiləri görə bilər
     @Operation(summary = "Get all users (Admin only)")
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -56,7 +52,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers(search, pageable));
     }
 
-    // ✅ Hər kəs öz profilini yeniləyə bilər
     @Operation(summary = "Update profile")
     @PutMapping("/profile")
     @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ADMIN')")
