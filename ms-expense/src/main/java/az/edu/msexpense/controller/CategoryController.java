@@ -26,7 +26,6 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    // ✅ Yalnız admin kateqoriya yarada bilər
     @Operation(summary = "Create a new category (Admin only)")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")

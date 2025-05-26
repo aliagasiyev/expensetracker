@@ -28,7 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
-            "/api/categories/**",
+
+            // qeyd et burda olanlar log yazmir // buna diqqet et
+           // "/api/categories/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html"
@@ -49,7 +51,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 TokenValidationResponse validationResponse = authServiceClient.validateToken(authHeader.replace("Bearer ", ""));
-                log.info("AUTH SERVICE RESPONSE: {}", validationResponse);
+
+                // BURADA LOG ƏLAVƏ ET!
+                log.info("ValidationResponse.getRole(): '{}'", validationResponse.getRole());
+                log.info("Authorities: {}", List.of(new SimpleGrantedAuthority("ROLE_" + validationResponse.getRole())));
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         validationResponse,
                         null,
