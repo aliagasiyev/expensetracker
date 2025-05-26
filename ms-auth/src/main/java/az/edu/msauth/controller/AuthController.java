@@ -50,7 +50,7 @@ public class AuthController {
     }
 
     @Operation(summary = "Validate JWT token")
-    @GetMapping("/validate")
+    @GetMapping("/validate-token")
     public ResponseEntity<TokenValidationResponse> validateToken(@RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(userService.validateToken(token));
     }

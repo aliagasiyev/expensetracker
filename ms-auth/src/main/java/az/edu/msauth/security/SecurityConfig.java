@@ -37,6 +37,7 @@ public class SecurityConfig {
             "/api/auth/login",
             "/api/auth/forgot-password",
             "/api/auth/validate",
+            "/api/auth/validate-token",
             "/auth/register",
             "/auth/login",
             "/auth/forgot-password",

@@ -50,7 +50,6 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Düzgün rol təyini
         if (request.getRole() != null && request.getRole().equalsIgnoreCase("ADMIN")) {
             user.setRole(UserRole.ADMIN);
         } else {
@@ -92,19 +91,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public TokenValidationResponse validateToken(String token) {
+        log.info("GELEN TOKEN: {}", token);
         try {
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            
             String email = jwtService.extractUsername(token);
+            log.info("TOKEN EMAIL: {}", email);
             User user = userRepository.findByEmail(email)
                     .orElse(null);
-                    
+
             if (user != null && jwtService.isTokenValid(token, user)) {
+                log.info("TOKEN VALID: userId={}, email={}, role={}", user.getId(), user.getEmail(), user.getRole().name());
                 return new TokenValidationResponse(true, user.getId(), user.getEmail(), user.getRole().name());
             }
-            
+
+            log.warn("TOKEN INVALID or USER NOT FOUND");
             return new TokenValidationResponse(false, null, null, null);
         } catch (Exception e) {
             log.error("Token validation failed: {}", e.getMessage());

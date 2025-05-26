@@ -41,29 +41,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            log.info("EXPENSE SERVISDEN GONDERILEN TOKEN: {}", authHeader.replace("Bearer ", ""));
 
-        try {
-            TokenValidationResponse validationResponse = authServiceClient.validateToken(authHeader);
+            try {
+                TokenValidationResponse validationResponse = authServiceClient.validateToken(authHeader.replace("Bearer ", ""));
+                log.info("AUTH SERVICE RESPONSE: {}", validationResponse);
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        validationResponse,
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + validationResponse.getRole()))
+                );
 
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    validationResponse,
-                    null,
-                    List.of(new SimpleGrantedAuthority("ROLE_" + validationResponse.getRole()))
-            );
+                SecurityContextHolder.getContext().setAuthentication(authToken);
 
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        } catch (Exception e) {
-            log.error("Could not validate token: ", e);
+            } catch (Exception e) {
+                log.error("Could not validate token: ", e);
+            }
         }
 
         filterChain.doFilter(request, response);
