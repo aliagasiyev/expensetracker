@@ -221,14 +221,3 @@ void userCannotAccessOthersData() {
 3. **Fail Secure**: Şübhəli hallarda çıxışı rədd et
 4. **Audit Everything**: Bütün təhlükəsizlik hadisələrini qeyd et
 5. **Regular Reviews**: Təhlükəsizlik konfiqurasiyalarını müntəzəm yoxla
-
-## 📞 Support
-
-Təhlükəsizlik məsələləri üçün əlaqə:
-- Security Team: security@expensetracker.az
-- Documentation: [Security Wiki](https://wiki.expensetracker.az/security)
-
----
-
-**Son yenilənmə**: 2024-01-15
-**Versiya**: 1.0.0 
