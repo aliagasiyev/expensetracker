@@ -57,8 +57,7 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_URLS).permitAll()
 
                         // 👤 User endpoints - authenticated users can access (MUST come before {id} patterns)
-                        .requestMatchers("/api/v1/users/me").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers("/v1/users/profile").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/v1/users/me").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")                        .requestMatchers("/v1/users/profile").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         .requestMatchers("/v1/users/change-password").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
                         // 👑 Admin only endpoints - yalnız admin çıxış edə bilər
