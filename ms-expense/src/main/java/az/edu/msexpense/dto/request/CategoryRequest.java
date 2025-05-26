@@ -16,7 +16,7 @@ public class CategoryRequest {
     @NotBlank(message = "Name cannot be bslank")
     private String name;
 
-    @NotNull(message = "Category type cannokt be null")
+    @NotNull(message = "Category type cannot be null")
     private CategoryType type;
 
     private String color;

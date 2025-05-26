@@ -32,13 +32,15 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
 
-    // ✅ Hər kəs öz xərcini yarada bilər
-    @Operation(summary = "Create a new expense")
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ExpenseResponse> createExpense(
             @Valid @RequestBody ExpenseRequest request) {
-        return new ResponseEntity<>(expenseService.createExpense(request), HttpStatus.CREATED);
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var user = (TokenValidationResponse) auth.getPrincipal();
+        Long userId = user.getUserId();
+
+        return new ResponseEntity<>(expenseService.createExpense(request, userId), HttpStatus.CREATED);
     }
 
     // ✅ USER yalnız öz xərclərini, ADMIN hamısını görə bilər
@@ -142,16 +144,6 @@ public class ExpenseController {
     @GetMapping("/top")
     public ResponseEntity<List<ExpenseResponse>> getTopExpenses() {
         return ResponseEntity.ok(expenseService.getTopExpenses());
-    }
-
-    @Operation(summary = "Create multiple expenses at once")
-    @PostMapping("/bulk")
-    public ResponseEntity<List<ExpenseResponse>> createExpensesInBulk(
-            @Valid @RequestBody List<ExpenseRequest> requests) {
-        List<ExpenseResponse> responses = requests.stream()
-                .map(expenseService::createExpense)
-                .toList();
-        return new ResponseEntity<>(responses, HttpStatus.CREATED);
     }
 
     @GetMapping("/test")

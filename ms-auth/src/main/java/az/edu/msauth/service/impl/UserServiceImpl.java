@@ -89,7 +89,6 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-    @Override
     public TokenValidationResponse validateToken(String token) {
         log.info("GELEN TOKEN: {}", token);
         try {
@@ -100,6 +99,7 @@ public class UserServiceImpl implements UserService {
             log.info("TOKEN EMAIL: {}", email);
             User user = userRepository.findByEmail(email)
                     .orElse(null);
+            log.info("TAPILAN USER: {}", user);
 
             if (user != null && jwtService.isTokenValid(token, user)) {
                 log.info("TOKEN VALID: userId={}, email={}, role={}", user.getId(), user.getEmail(), user.getRole().name());

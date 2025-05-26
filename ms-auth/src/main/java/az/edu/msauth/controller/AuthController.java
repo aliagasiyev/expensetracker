@@ -52,7 +52,7 @@ public class AuthController {
     @Operation(summary = "Validate JWT token")
     @GetMapping("/validate-token")
     public ResponseEntity<TokenValidationResponse> validateToken(@RequestHeader("Authorization") String token) {
+        System.out.println("CONTROLLER: validateToken çağırıldı, token: " + token);
         return ResponseEntity.ok(userService.validateToken(token));
     }
-
 }

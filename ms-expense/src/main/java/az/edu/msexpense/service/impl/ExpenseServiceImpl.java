@@ -36,12 +36,12 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final SecurityUtils securityUtils; // əlavə et
 
     @Override
-    public ExpenseResponse createExpense(ExpenseRequest request) {
+    public ExpenseResponse createExpense(ExpenseRequest request, Long userId) {
         try {
             validateExpenseData(request);
 
             Expense expense = expenseMapper.toEntity(request);
-            expense.setUserId(securityUtils.getCurrentUserId());
+            expense.setUserId(userId);
 
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new InvalidCategoryDataException("Category not found"));
@@ -52,8 +52,6 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new InvalidExpenseDataException("Failed to create expense: " + e.getMessage());
         }
     }
-
-
     @Override
     @Transactional(readOnly = true)
     public List<ExpenseResponse> getAllExpenses() {

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TokenValidationResponse {
     private boolean valid;
-    private Long id;
+    private Long userId;
     private String email;
     private String role;
 } 
