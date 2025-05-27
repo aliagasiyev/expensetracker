@@ -18,7 +18,7 @@ public class AuthClient {
 
     public TokenValidationResponse validateToken(String token) {
         try {
-            String url = "http://ms-auth/api/auth/validate";
+            String url = "http://ms-auth/api/auth/validate-token";
             
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(token);

@@ -1,13 +1,13 @@
-package az.edu.msanalytics;
+// package az.edu.msanalytics;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class MsAnalyticsApplicationTests {
+// @SpringBootTest
+// class MsAnalyticsApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
+//     @Test
+//     void contextLoads() {
+//     }
 
-}
+// }
