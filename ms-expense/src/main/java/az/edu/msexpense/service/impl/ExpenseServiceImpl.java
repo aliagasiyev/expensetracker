@@ -115,6 +115,14 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
+    public List<ExpenseResponse> getUserExpenses(Long userId) {
+        return expenseRepository.findAllByUserId(userId)
+                .stream()
+                .map(expenseMapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public ExpenseResponse updateExpense(Long id, ExpenseRequest request) {
         try {
             validateExpenseData(request);

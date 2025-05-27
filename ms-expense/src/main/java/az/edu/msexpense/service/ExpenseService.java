@@ -33,5 +33,6 @@ public interface ExpenseService {
 
     Map<CategoryType, BigDecimal> getExpensesByCategory();
 
+    List<ExpenseResponse> getUserExpenses(Long userId);
     List<ExpenseResponse> getTopExpenses();
 }

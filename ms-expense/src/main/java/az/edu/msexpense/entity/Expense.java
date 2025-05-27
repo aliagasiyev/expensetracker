@@ -32,5 +32,8 @@ public class Expense {
     private LocalDate date;
 
     private boolean income;
+
+    @Column(name = "description")
+    private String description;
     
 }

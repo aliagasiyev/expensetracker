@@ -22,6 +22,7 @@ public interface ExpenseMapper {
     @Mapping(target = "title", source = "title")
     @Mapping(target = "amount", source = "amount")
     @Mapping(target = "date", source = "date")
-    @Mapping(target = "description", ignore = true)
+    @Mapping(target = "description", source = "description") // <-- bunu əlavə et!
+
     ExpenseResponse toResponse(Expense entity);
 }

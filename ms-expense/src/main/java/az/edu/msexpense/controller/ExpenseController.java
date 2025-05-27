@@ -4,6 +4,7 @@ import az.edu.msexpense.client.TokenValidationResponse;
 import az.edu.msexpense.dto.request.ExpenseRequest;
 import az.edu.msexpense.dto.response.ExpenseResponse;
 import az.edu.msexpense.enums.CategoryType;
+import az.edu.msexpense.service.ExpenseExportService;
 import az.edu.msexpense.service.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,8 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +31,7 @@ import java.util.Map;
 public class ExpenseController {
 
     private final ExpenseService expenseService;
+   private final ExpenseExportService expenseExportService;
 
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -43,7 +44,21 @@ public class ExpenseController {
         return new ResponseEntity<>(expenseService.createExpense(request, userId), HttpStatus.CREATED);
     }
 
-    // ✅ USER yalnız öz xərclərini, ADMIN hamısını görə bilər
+    @Operation(summary = "Export user's expenses as PDF and save to local file")
+    @GetMapping("/export/pdf/save")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<String> exportAndSaveExpensesPdf() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var user = (TokenValidationResponse) auth.getPrincipal();
+        Long userId = user.getUserId();
+
+        List<ExpenseResponse> expenses = expenseService.getUserExpenses(userId);
+        String fileName = "expenses_" + userId + "_" + LocalDate.now() + ".pdf";
+        String filePath = expenseExportService.saveExpensesPdfToFile(expenses, fileName);
+
+        return ResponseEntity.ok("PDF saved to: " + filePath);
+    }
+
     @Operation(summary = "Get user's expenses")
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -51,7 +66,6 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
 
-    // ✅ Yalnız admin bütün xərcləri görə bilər
     @Operation(summary = "Get all expenses (Admin only)")
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
@@ -59,13 +73,12 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
 
-    // ✅ USER yalnız öz xərcini, ADMIN hamısını görə bilər
     @Operation(summary = "Get expense by ID")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ExpenseResponse> getExpenseById(
-            @PathVariable(name = "id") 
-            @Parameter(description = "ID of the expense to retrieve", required = true) 
+            @PathVariable(name = "id")
+            @Parameter(description = "ID of the expense to retrieve", required = true)
             Long id) {
         return ResponseEntity.ok(expenseService.getExpenseById(id));
     }
@@ -80,7 +93,6 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getExpensesByDateRange(from, to));
     }
 
-    // ✅ USER yalnız öz xərcini yeniləyə bilər
     @Operation(summary = "Update an expense")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -91,7 +103,6 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.updateExpense(id, request));
     }
 
-    // ✅ USER yalnız öz xərcini silə bilər
     @Operation(summary = "Delete an expense by ID")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -113,16 +124,16 @@ public class ExpenseController {
     public ResponseEntity<List<ExpenseResponse>> searchExpenses(
             @Parameter(description = "Title to search for")
             @RequestParam(required = false) String title,
-            
+
             @Parameter(description = "Category ID to filter by")
             @RequestParam(required = false) Long categoryId,
-            
+
             @Parameter(description = "Date to filter by (ISO format)")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            
+
             @Parameter(description = "Minimum amount")
             @RequestParam(required = false) BigDecimal minAmount,
-            
+
             @Parameter(description = "Maximum amount")
             @RequestParam(required = false) BigDecimal maxAmount) {
         return ResponseEntity.ok(expenseService.searchExpenses(title, categoryId, date, minAmount, maxAmount));
@@ -153,4 +164,22 @@ public class ExpenseController {
         return ResponseEntity.ok("Hello from expense service, " + user.getEmail());
     }
 
+    @Operation(summary = "Export user's expenses as PDF")
+    @GetMapping("/export/pdf")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<byte[]> exportExpensesToPdf() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var user = (TokenValidationResponse) auth.getPrincipal();
+        Long userId = user.getUserId();
+
+        List<ExpenseResponse> expenses = expenseService.getUserExpenses(userId);
+        byte[] pdfBytes = expenseExportService.exportExpensesToPdf(expenses);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.attachment().filename("expenses.pdf").build());
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+
+    }
 }
