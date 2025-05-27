@@ -1,4 +1,4 @@
-# 💸 Expense Tracker
+![Gemini_Generated_Image_t5e7owt5e7owt5e7](https://github.com/user-attachments/assets/7f79361a-bd97-4f32-9109-bbea4610d7f9)# 💸 Expense Tracker
 
 ![Java](https://img.shields.io/badge/Java-17-blue)
 ![Spring Boot](https://img.shields.io/badge/SpringBoot-3.1.2-brightgreen)
@@ -11,7 +11,8 @@
 
 ### 🧭 System Architecture
 
-![System Architecture](docs/architecture-dark.png)
+![System Architecture](![Uploading Gemini_Generated_Image_t5e7owt5e7owt5e7.png…]()
+)
 
 
 
