@@ -12,9 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecurityUtils {
 
-    /**
-     * Get the current authenticated user's email
-     */
     public static String getCurrentUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -28,9 +25,6 @@ public class SecurityUtils {
         return principal.toString();
     }
 
-    /**
-     * Get the current authenticated user's ID from JWT authentication
-     */
     public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug("Getting current user ID, authentication: {}", authentication);
@@ -38,7 +32,6 @@ public class SecurityUtils {
         log.debug("Is authenticated: {}", authentication != null ? authentication.isAuthenticated() : "null");
         
         if (authentication != null && authentication.isAuthenticated()) {
-            // Check if it's our custom JWT authentication token
             if (authentication instanceof JwtAuthenticationToken) {
                 JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
                 Long userId = jwtAuth.getUserId();
@@ -54,9 +47,6 @@ public class SecurityUtils {
         return null;
     }
 
-    /**
-     * Check if the current user has admin role
-     */
     public static boolean isAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null &&
@@ -64,9 +54,6 @@ public class SecurityUtils {
                         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 
-    /**
-     * Check if a user is authenticated
-     */
     public static boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null &&

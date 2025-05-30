@@ -1,4 +1,4 @@
-package az.edu.msexpense.config;
+package az.edu.msanalytics.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;

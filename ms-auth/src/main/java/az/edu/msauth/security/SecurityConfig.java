@@ -54,20 +54,18 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // 🌐 Public endpoints - hər kəs çıxış edə bilər
+
                         .requestMatchers(PUBLIC_URLS).permitAll()
 
-                        // 👤 User endpoints - authenticated users can access (MUST come before {id} patterns)
-                        .requestMatchers("/v1/users/me").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")                        .requestMatchers("/v1/users/profile").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/v1/users/me").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/v1/users/profile").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         .requestMatchers("/v1/users/change-password").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
-                        // 👑 Admin only endpoints - yalnız admin çıxış edə bilər
                         .requestMatchers("/v1/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/v1/users/all").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/v1/users/{id}").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/v1/users/{id}").hasAuthority("ROLE_ADMIN")
 
-                        // 🔒 All other requests need authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

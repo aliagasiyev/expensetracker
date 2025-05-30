@@ -26,8 +26,6 @@ public class ExpenseExportServiceImpl implements ExpenseExportService {
     private static final int START_X = 50;
     private static final int TABLE_TOP_Y = 730;
 
-
-
     @Override
     public String saveExpensesPdfToFile(List<ExpenseResponse> expenses, String fileName) {
         byte[] pdfBytes = exportExpensesToPdf(expenses);
@@ -138,13 +136,11 @@ public class ExpenseExportServiceImpl implements ExpenseExportService {
         contentStream.setStrokingColor(180, 180, 180); // Açıq boz
         int tableBottomY = TABLE_TOP_Y - (rowCount + 1) * ROW_HEIGHT;
 
-        // Yatay xətlər
         for (int i = 0; i <= rowCount + 1; i++) {
             int lineY = TABLE_TOP_Y - i * ROW_HEIGHT;
             contentStream.moveTo(START_X, lineY);
             contentStream.lineTo(START_X + TABLE_WIDTH, lineY);
         }
-        // Dikey xətlər
         int lineX = START_X;
         for (int w : COL_WIDTHS) {
             contentStream.moveTo(lineX, TABLE_TOP_Y);
