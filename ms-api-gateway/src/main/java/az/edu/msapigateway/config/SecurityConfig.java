@@ -24,6 +24,8 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         // 🌐 Public endpoints - hər kəs çıxış edə bilər
                         .pathMatchers("/api/auth/register", "/api/auth/login", "/api/auth/forgot-password").permitAll()
+
+                        .pathMatchers("/v1/users/profile", "/v1/users/change-password", "/v1/users/me").permitAll()
                         .pathMatchers("/actuator/health", "/actuator/info").permitAll()
                         .pathMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         

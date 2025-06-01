@@ -28,7 +28,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         return (exchange, chain) -> {
             String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-            // Token yoxdursa, davam et (public endpoint-lər üçün)
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return chain.filter(exchange);
             }
