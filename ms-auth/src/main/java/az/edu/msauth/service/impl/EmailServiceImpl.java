@@ -29,7 +29,6 @@ public class EmailServiceImpl implements EmailService {
             log.info("Email sending is disabled. Would have sent password reset email to: {}", to);
             return;
         }
-
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);

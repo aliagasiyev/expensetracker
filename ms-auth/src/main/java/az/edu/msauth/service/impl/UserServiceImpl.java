@@ -152,10 +152,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        // Delete any existing tokens
         tokenRepository.deleteByUser_Id(user.getId());
 
-        // Create new token
         String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .token(token)

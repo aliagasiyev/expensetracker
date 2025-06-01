@@ -6,7 +6,6 @@ import az.edu.msauth.dto.request.ForgotPasswordRequest;
 import az.edu.msauth.dto.request.ResetPasswordRequest;
 import az.edu.msauth.dto.response.AuthResponse;
 import az.edu.msauth.dto.response.TokenValidationResponse;
-import az.edu.msauth.dto.response.TokenValidationResponse;
 import az.edu.msauth.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

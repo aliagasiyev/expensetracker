@@ -1,6 +1,5 @@
 package az.edu.msauth.entity;
 
-import az.edu.msauth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

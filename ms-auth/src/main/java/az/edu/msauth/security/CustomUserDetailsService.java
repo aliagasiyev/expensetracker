@@ -1,6 +1,5 @@
 package az.edu.msauth.security;
 
-
 import az.edu.msauth.entity.User;
 import az.edu.msauth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
