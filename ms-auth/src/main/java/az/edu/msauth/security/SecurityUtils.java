@@ -12,19 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecurityUtils {
 
-    public static String getCurrentUserEmail() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return null;
-        }
-
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        }
-        return principal.toString();
-    }
-
     public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug("Getting current user ID, authentication: {}", authentication);
@@ -45,19 +32,5 @@ public class SecurityUtils {
             log.debug("Authentication is null or not authenticated");
         }
         return null;
-    }
-
-    public static boolean isAdmin() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null &&
-                authentication.getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-    }
-
-    public static boolean isAuthenticated() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null &&
-                authentication.isAuthenticated() &&
-                !"anonymousUser".equals(authentication.getPrincipal());
     }
 }
