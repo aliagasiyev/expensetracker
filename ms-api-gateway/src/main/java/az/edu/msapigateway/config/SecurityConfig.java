@@ -22,21 +22,20 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeExchange(exchanges -> exchanges
-                        // 🌐 Public endpoints - hər kəs çıxış edə bilər
                         .pathMatchers("/api/auth/register", "/api/auth/login", "/api/auth/forgot-password").permitAll()
 
-                        .pathMatchers("/v1/users/profile", "/v1/users/change-password", "/v1/users/me").permitAll()
+                        .pathMatchers("/v1/users/profile", "/v1/users/change-password", "v1/users/change-password", "/v1/users/{id}", "/v1/users/me").permitAll()
                         .pathMatchers("/actuator/health", "/actuator/info").permitAll()
                         .pathMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                        
+
                         .pathMatchers("/admin/**").hasRole("ADMIN")
                         .pathMatchers("/users/all", "/users/{id}").hasRole("ADMIN")
                         .pathMatchers("/expenses/all", "/expenses/admin/**").hasRole("ADMIN")
                         .pathMatchers("/categories/admin/**").hasRole("ADMIN")
                         .pathMatchers("/analytics/system-overview", "/analytics/all-users-summary").hasRole("ADMIN")
-                        
+
                         .pathMatchers("/users/**", "/expenses/**", "/categories/**", "/analytics/**").hasAnyRole("USER", "ADMIN")
-                        
+
                         .anyExchange().authenticated()
                 )
                 .build();
