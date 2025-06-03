@@ -11,4 +11,8 @@ public class HealthController {
     public Mono<String> health() {
         return Mono.just("Gateway is up and running!");
     }
+    @GetMapping("/test")
+    public Mono<String> test() {
+        return Mono.just("Gateway is up and running!");
+    }
 }
