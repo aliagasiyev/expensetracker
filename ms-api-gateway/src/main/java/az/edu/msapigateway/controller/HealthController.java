@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 @RestController
 public class HealthController {
 
-    @GetMapping("/health")
+    @GetMapping("/healtzh")
     public Mono<String> health() {
         return Mono.just("Gateway is up and running!");
     }
