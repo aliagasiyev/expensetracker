@@ -47,7 +47,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
                 System.out.println("Gateway JWT: email=" + email + ", userId=" + userId + ", role=" + role);
 
-                return chain.filter(exchange);
+                return chain.filter(exchange.mutate()
+                        .request(exchange.getRequest().mutate()
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .build())
+                        .build());
 
             } catch (Exception e) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);

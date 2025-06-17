@@ -34,7 +34,6 @@ public class CategoryController {
         return new ResponseEntity<>(categoryService.createCategory(request), HttpStatus.CREATED);
     }
 
-    // ✅ Hər kəs kateqoriyaları görə bilər
     @Operation(summary = "Get all categories")
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")

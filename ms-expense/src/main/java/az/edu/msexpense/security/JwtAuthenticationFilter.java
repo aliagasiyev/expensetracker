@@ -44,7 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-
+        log.info("FILTER ISLEDI: {}", request.getRequestURI());
+        log.info("GELEN AUTH HEADER: {}", authHeader);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             log.info("EXPENSE SERVISDEN GONDERILEN TOKEN: {}", authHeader.replace("Bearer ", ""));
 
