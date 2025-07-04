@@ -50,7 +50,6 @@ public class NotificationService {
         if (settings != null && settings.isEmailEnabled()) {
             sendEmail(settings.getEmail(), "Test Notification", "This is a test notification.");
         }
-        // In-app notification logic (stub)
         log.info("In-app test notification sent to user {}", userId);
     }
 
