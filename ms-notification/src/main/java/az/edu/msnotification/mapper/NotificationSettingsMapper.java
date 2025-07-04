@@ -7,7 +7,10 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface NotificationSettingsMapper {
+
     NotificationSettingsMapper INSTANCE = Mappers.getMapper(NotificationSettingsMapper.class);
+
     NotificationSettings toEntity(NotificationSettingsDto dto);
+
     NotificationSettingsDto toDto(NotificationSettings entity);
 }

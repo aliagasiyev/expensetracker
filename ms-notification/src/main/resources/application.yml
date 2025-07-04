@@ -16,17 +16,6 @@ spring:
       auto-offset-reset: earliest
     listener:
       ack-mode: record
-  mail:
-    host: smtp.mailtrap.io
-    port: 2525
-    username: <MAILTRAP_USERNAME>
-    password: <MAILTRAP_PASSWORD>
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false

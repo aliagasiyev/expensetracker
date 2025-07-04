@@ -60,7 +60,6 @@ public class UserController {
         return ResponseEntity.ok(userService.updateProfile(userId, request));
     }
 
-    // ✅ Hər kəs öz şifrəsini dəyişə bilər
     @Operation(summary = "Change password")
     @PutMapping("/change-password")
     @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ADMIN')")
@@ -70,7 +69,6 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    // ✅ USER yalnız öz hesabını, ADMIN istənilən hesabı silə bilər
     @Operation(summary = "Delete user account")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or (hasAuthority('ROLE_USER') and #id == authentication.principal.id)")
@@ -79,7 +77,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // ✅ Hər kəs öz hesabını silə bilər
     @Operation(summary = "Delete own account")
     @DeleteMapping("/me")
     @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ADMIN')")

@@ -1,7 +1,6 @@
-# ms-api-gateway/src/main/resources/application.yml
 server:
   port: 8080
-
+  address: 0.0.0.0
 spring:
   application:
     name: ms-api-gateway
@@ -11,16 +10,39 @@ spring:
         - id: ms-auth
           uri: lb://ms-auth
           predicates:
-            - Path=/api/auth/**, /api/users/**
+            - Path=/api/auth/**, /api/users/**, /v1/users/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /api/$\{segment}
+            - RewritePath=/api/(?<segment>.*), /api/${segment}
         - id: ms-expense
           uri: lb://ms-expense
           predicates:
             - Path=/api/expenses/**, /api/categories/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /api/$\{segment}
-
+            - RewritePath=/api/(?<segment>.*), /api/${segment}
+        - id: ms-analytics
+          uri: lb://ms-analytics
+          predicates:
+            - Path=/api/analytics/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /api/${segment}
+        - id: ms-api-gateway
+          uri: lb://ms-api-gateway
+          predicates:
+            - Path=/api/gateway/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /api/${segment}
+        - id: ms-eureka
+          uri: lb://ms-eureka
+          predicates:
+            - Path=/api/eureka/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /api/${segment}
+        - id: ms-notification
+          uri: lb://ms-notification
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /api/${segment}
       discovery:
         locator:
           enabled: true
@@ -35,7 +57,10 @@ eureka:
   instance:
     prefer-ip-address: true
 
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    reactor.netty: DEBUG
+    org.springframework.cloud.gateway: TRACE
+    reactor.netty: TRACE

@@ -56,13 +56,11 @@ public class NotificationService {
 
     @KafkaListener(topics = "expense.limit-exceeded", groupId = "notification-group")
     public void handleLimitExceeded(String message) {
-        // message could be a userId or JSON, adjust as needed
         Long userId = Long.valueOf(message);
         NotificationSettings settings = settingsRepository.findById(userId).orElse(null);
         if (settings != null && settings.isEmailEnabled()) {
             sendEmail(settings.getEmail(), "Spending Limit Exceeded", "You have exceeded your spending limit.");
         }
-        // In-app notification logic (stub)
         log.info("Limit-exceeded alert sent to user {}", userId);
     }
 
@@ -73,7 +71,6 @@ public class NotificationService {
         if (settings != null && settings.isEmailEnabled()) {
             sendEmail(settings.getEmail(), "Monthly Summary", "Here is your monthly expense summary.");
         }
-        // In-app notification logic (stub)
         log.info("Monthly summary sent to user {}", userId);
     }
 
