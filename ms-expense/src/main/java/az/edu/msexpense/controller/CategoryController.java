@@ -59,7 +59,6 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
-    // ✅ Yalnız admin kateqoriya yeniləyə bilər
     @Operation(summary = "Update a category (Admin only)")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -70,7 +69,6 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
-    // ✅ Yalnız admin kateqoriya silə bilər
     @Operation(summary = "Delete a category (Admin only)")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
