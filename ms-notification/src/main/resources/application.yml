@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/notificationdb
+    url: jdbc:postgresql://localhost:5432/expensetracker
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -19,6 +19,17 @@ spring:
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ilkinrzayev07700@gmail.com
+    password: yisl dsgz exqe gawe
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   port: 8085
